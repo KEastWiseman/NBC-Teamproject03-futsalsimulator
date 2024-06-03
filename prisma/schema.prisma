@@ -14,18 +14,20 @@ datasource db {
 }
 
 model User{
-  userIndex Int @id @default(autoincrement()) @map("userIndex")
-  userId String @unique @map("userId")
+  id Int @id @default(autoincrement()) @map("id")
+  accountName String @unique @map("accountName")
   password String @map("password")
-  createdAt DataTime @default(now()) @map("createdAt")
+  createdAt DateTime @default(now()) @map("createdAt")
 
-  playerPool PlayerPool?
+  playerPool PlayerPool[]
   squard Squard?
+  matchesA   Matching[] @relation(name: "UserAMatches")
+  matchesB Matching[] @relation(name: "UserBMatches")
   @@map("User")
 }
 
 model Player{
-  playerIndex Int @id @default(autoincrement()) @map("playerIndex")
+  id Int @id @default(autoincrement()) @map("id")
   name String @map("name")
   speed Int @map("speed")
   passing Int @map("passing")
@@ -37,36 +39,40 @@ model Player{
   strength Int @map("strength")
   weight Int @map("weight")
 
+  playerPool PlayerPool[]
   @@map("Player")
 }
 
 model PlayerPool{
-  playerPoolIndex Int @id @default(autoincrement()) @map("playerPoolIndex")
-  userIndex @unique @map("userIndex")
+  id Int @id @default(autoincrement()) @map("id")
+  userId Int @map("userId")
+  playerId Int @map("playerId")
   createdAt DateTime @default(now()) @map("createdAt")
 
-  user User @relation(fields:[userIndex], references:[userIndex], onDelete : Cascade)
-  playerIndex Player[]
+  user User @relation(fields:[userId], references:[id], onDelete : Cascade)
+  playerIndex Player @relation(fields:[playerId], references:[id], onDelete : Cascade)
+  squard Squard?
   @@map("PlayerPool")
 }
 
 model Squard{
-  squardIndex Int @id @default(autoincrement()) @map("squardIndex")
-  userIndex @unique @map("userIndex")
-  playerPoolIndex @unique @map("playerPoolIndex")
+  id Int @id @default(autoincrement()) @map("id")
+  userId Int @unique @map("userId")
+  playerPoolId Int @unique @map("playerPoolId")
 
-  playerPool PlayerPool @relation(fields : [playerPoolIndex], references:[playerPoolIndex], onDelete:Cascade)
-  user User @relation(fields:[userIndex], references:[userIndex], onDelete : Cascade)
+  playerPool PlayerPool @relation(fields : [playerPoolId], references:[id], onDelete:Cascade)
+  user User @relation(fields:[userId], references:[id], onDelete : Cascade)
   @@map("Squard")
 }
 
 model Matching{
-  matchIndex Int @id @default(autoincrement()) @map("matchIndex")
-  userAIndex @map("userAIndex")
-  userBIndex @map("userBIndex")
+  id Int @id @default(autoincrement()) @map("id")
+  userAId Int @map("userAId")
+  userBId Int @map("userBId")
   result String @map("result") @db.Text
 
-  userA Users @relation(fields:[userAIndex], references : [userIdx], onDelete : Cascade)
-  userB Users @relation(fields:[userBIndex], references : [userIdx], onDelete : Cascade)
+  userA User @relation(name: "UserAMatches", fields:[userAId], references : [id], onDelete : Cascade)
+  userB User @relation(name: "UserBMatches", fields:[userBId], references : [id], onDelete : Cascade)
+
   @@map("Matching")
 }
