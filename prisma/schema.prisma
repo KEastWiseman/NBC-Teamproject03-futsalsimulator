@@ -9,6 +9,70 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model User{
+  id Int @id @default(autoincrement()) @map("id")
+  accountName String @unique @map("accountName")
+  password String @map("password")
+  createdAt DateTime @default(now()) @map("createdAt")
+
+  playerPool PlayerPool[]
+  squard Squard?
+  matchesA   Matching[] @relation(name: "UserAMatches")
+  matchesB Matching[] @relation(name: "UserBMatches")
+  @@map("User")
+}
+
+model Player{
+  id Int @id @default(autoincrement()) @map("id")
+  name String @map("name")
+  speed Int @map("speed")
+  passing Int @map("passing")
+  dribbling Int @map("dribbling")
+  heading Int @map("heading")
+  shooting Int @map("shooting")
+  tackling Int @map("tackling")
+  marking Int @map("marking")
+  strength Int @map("strength")
+  weight Int @map("weight")
+
+  playerPool PlayerPool[]
+  @@map("Player")
+}
+
+model PlayerPool{
+  id Int @id @default(autoincrement()) @map("id")
+  userId Int @map("userId")
+  playerId Int @map("playerId")
+  createdAt DateTime @default(now()) @map("createdAt")
+
+  user User @relation(fields:[userId], references:[id], onDelete : Cascade)
+  playerIndex Player @relation(fields:[playerId], references:[id], onDelete : Cascade)
+  squard Squard?
+  @@map("PlayerPool")
+}
+
+model Squard{
+  id Int @id @default(autoincrement()) @map("id")
+  userId Int @unique @map("userId")
+  playerPoolId Int @unique @map("playerPoolId")
+
+  playerPool PlayerPool @relation(fields : [playerPoolId], references:[id], onDelete:Cascade)
+  user User @relation(fields:[userId], references:[id], onDelete : Cascade)
+  @@map("Squard")
+}
+
+model Matching{
+  id Int @id @default(autoincrement()) @map("id")
+  userAId Int @map("userAId")
+  userBId Int @map("userBId")
+  result String @map("result") @db.Text
+
+  userA User @relation(name: "UserAMatches", fields:[userAId], references : [id], onDelete : Cascade)
+  userB User @relation(name: "UserBMatches", fields:[userBId], references : [id], onDelete : Cascade)
+
+  @@map("Matching")
 }
