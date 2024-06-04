@@ -38,6 +38,7 @@ model Player{
   marking Int @map("marking")
   strength Int @map("strength")
   weight Int @map("weight")
+  nationality String @map("nationality")
 
   playerPool PlayerPool[]
   @@map("Player")
