@@ -48,7 +48,7 @@ router.post('/DrawCard', authMiddleware, async(req,res,next) => {
                 });
 
                 await prisma.playerPool.createMany({
-                    data: getPlayer
+                    data: getPlayer.id
                 });
             };
 
@@ -79,26 +79,23 @@ router.post('/DrawCard', authMiddleware, async(req,res,next) => {
 const getRandom = (playerpackage, count) => {
     let pick = [];
     for (let j = 0; j< count-1; j++) {
-        const randomNumber = Math.floor((Math.random()*99)+1);
+        const randomNumber = Math.floor((Math.random()*99)+1);                          //1
         const playerNameTable = []; 
         const percentTable = []; 
         for (let i=0; i<playerpackage.length; i++){
-            playerNameTable += playerpackage[i].playername;                         //2
-            if (percentTable[0] === NaN) {                                          //3
-                percentTable += playerpackage[i].weight*100;
-            } else if(percentTable[0] !== NaN) {
-                percentTable += (playerpackage[i].weight*100) +  percentTable[i-1];
+            playerNameTable.push(playerpackage[i].playername);                          //2
+            if (percentTable[i-1] === undefined) {                                      //3
+                percentTable.push(playerpackage[i].weight*100);
+            } else if(percentTable[i-1] !== undefined) {
+                percentTable.push((playerpackage[i].weight*100) +  percentTable[i-1]);
             }
         };
-    
-    
-        for (let i=0; i<playerTable.length; i++){                                   //4
-            if (randomNumber<=percentTable[i]) {
-                pick+= playerNameTable[i];
+        for (let k=0; k<percentTable.length; k++){                                      //4
+            if (randomNumber<=percentTable[k]) {
+                pick+= playerNameTable[k];
             };
         };
     };
-
     return pick;
 }
 
