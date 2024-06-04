@@ -21,8 +21,8 @@ model User{
 
   playerPool PlayerPool[]
   squard Squard?
-  matchesA   Matching[] @relation(name: "UserAMatches")
-  matchesB Matching[] @relation(name: "UserBMatches")
+  home Matching[] @relation(name: "UserAMatches")
+  away Matching[] @relation(name: "UserBMatches")
   @@map("User")
 }
 
@@ -38,6 +38,7 @@ model Player{
   marking Int @map("marking")
   strength Int @map("strength")
   weight Int @map("weight")
+  nationality String @map("nationality")
 
   playerPool PlayerPool[]
   @@map("Player")
@@ -67,12 +68,12 @@ model Squard{
 
 model Matching{
   id Int @id @default(autoincrement()) @map("id")
-  userAId Int @map("userAId")
-  userBId Int @map("userBId")
+  userHomeId Int @map("userHomeId")
+  userAwayId Int @map("userAwayId")
   result String @map("result") @db.Text
 
-  userA User @relation(name: "UserAMatches", fields:[userAId], references : [id], onDelete : Cascade)
-  userB User @relation(name: "UserBMatches", fields:[userBId], references : [id], onDelete : Cascade)
+  userHome User @relation(name: "UserAMatches", fields:[userHomeId], references : [id], onDelete : Cascade)
+  userAway User @relation(name: "UserBMatches", fields:[userAwayId], references : [id], onDelete : Cascade)
 
   @@map("Matching")
 }
