@@ -3,7 +3,7 @@ import { prisma } from "../util/prisma/index.js";
 
 const router = express.Router();
 
-function PlayGame(homeSquard, awaySquard) {
+function MatchGame(homeSquard, awaySquard) {
   let homeShootCount = Math.floor(
     homeSquard.mid.speed * 0.03 +
       homeSquard.mid.passing * 0.04 +
@@ -11,14 +11,14 @@ function PlayGame(homeSquard, awaySquard) {
   );
 
   let homePower =
-    homeSquard.str.speed * 0.03 +
-    homeSquard.str.passing * 0.04 +
+    homeSquard.str.heading * 0.03 +
+    homeSquard.str.shooting * 0.04 +
     homeSquard.str.dribbling * 0.03;
 
   let homeDeffence =
-    homeSquard.def.speed * 0.03 +
-    homeSquard.def.passing * 0.04 +
-    homeSquard.def.dribbling * 0.03;
+    homeSquard.def.tackling * 0.03 +
+    homeSquard.def.marking * 0.04 +
+    homeSquard.def.strength * 0.03;
 
   let awayShootCount =
     awaySquard.mid.speed * 0.03 +
@@ -26,14 +26,14 @@ function PlayGame(homeSquard, awaySquard) {
     awaySquard.mid.dribbling * 0.03;
 
   let awayPower =
-    awaySquard.str.speed * 0.03 +
-    awaySquard.str.passing * 0.04 +
+    awaySquard.str.heading * 0.03 +
+    awaySquard.str.shooting * 0.04 +
     awaySquard.str.dribbling * 0.03;
 
   let awayDeffence =
-    awaySquard.def.speed * 0.03 +
-    awaySquard.def.passing * 0.04 +
-    awaySquard.def.dribbling * 0.03;
+    awaySquard.def.tackling * 0.03 +
+    awaySquard.def.marking * 0.04 +
+    awaySquard.def.strength * 0.03;
 
   let homeScore = {
     power: homePower,
@@ -105,15 +105,30 @@ router.post("/games/play", async (req, res, next) => {
     );
     const awaySquard = allSquardsExceptHome[randomSquardIndex];
 
-    const result = PlayGame(homeSquard, awaySquard);
+    const result = MatchGame(homeSquard, awaySquard);
+
+    // Match 테이블에 결과 입력
+    const matchResult = await prisma.matching.create({
+      data: {
+        userHomeId: homeSquard.userId, // 홈 팀 유저 ID
+        userAwayId: awaySquard.userId, // 어웨이 팀 유저 ID
+        result: `${result.homeGoal} : ${result.awayGoal}`, // 결과 문자열 생성
+      },
+    });
 
     //경기 결과
     if (result.homeGoal > result.awayGoal) {
-      return res.status(201).json({message: `${result.homeGoal} : ${result.awayGoal}로 승리!`});
+      return res
+        .status(201)
+        .json({ message: `${matchResult.result}로 승리!` });
     } else if (homeGoal === awayGoal) {
-      return res.status(201).json({message: `${result.homeGoal} : ${result.awayGoal}로 무승부!`});
+      return res
+        .status(201)
+        .json({ message: `${matchResult.result}로 무승부!` });
     } else {
-      return res.status(201).json({message: `${result.homeGoal} : ${result.awayGoal}로 패배!`});
+      return res
+        .status(201)
+        .json({ message: `${matchResult.result}로 패배!` });
     }
   } catch (err) {
     next(err);
