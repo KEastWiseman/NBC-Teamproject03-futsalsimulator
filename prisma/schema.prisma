@@ -18,6 +18,7 @@ model User{
   accountName String @unique @map("accountName")
   password String @map("password")
   createdAt DateTime @default(now()) @map("createdAt")
+  cash Int @map("cash")
 
   playerPool PlayerPool[]
   squard Squard?
