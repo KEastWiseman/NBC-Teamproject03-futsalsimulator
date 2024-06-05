@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { futsalPrisma } from "../../../util/prisma/index.js"
+import { prisma } from "../../../util/prisma/index.js"
 
 export default async function (req, res, next){
     try{
@@ -13,11 +13,11 @@ export default async function (req, res, next){
 
         // ** JWT 토큰 검사
         const decodedToken = jwt.verify(token, process.env.USER_TOKEN_KEY);
-        const userId = decodedToken.userId;
+        const accountName = decodedToken.accountName;
         
-        const user = await futsalPrisma.user.findFirst({
+        const user = await prisma.user.findFirst({
             where : {
-                id : userId
+                accountName : accountName
             }
         });
         // ** JWT 토큰 검사 후 토큰 유저 존재하는지 검사
