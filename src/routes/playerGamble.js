@@ -53,7 +53,10 @@ router.post('/DrawCard', authMiddleware, async(req,res,next) => {
                 });
 
                 await prisma.playerPool.createMany({
-                    data: {id:getPlayer.id}
+                    data: {
+                        id: getPlayer.id,
+                        name: getPlayer.name
+                    }
                 });
             };
 
@@ -76,8 +79,7 @@ router.post('/DrawCard', authMiddleware, async(req,res,next) => {
 });
 
 // 2.선수 뽑기 시스템
-// 2.1. 1부터 x까지의 수 중에 랜덤으로 결정 (x : 선수의 총 인원)
-//  ex) 선수가 총 50명이면 1부터 50까지의 수 중에 랜덤으로 결정
+// 2.1. 1부터 선수의 총 인원까지의 수 중에 랜덤으로 결정 
 // 2.2. 랜덤값에 해당하는 선수 뽑기
 const getRandom = (playerpackage, count) => {
     let pick = [];
