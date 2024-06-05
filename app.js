@@ -8,7 +8,6 @@ import PlayerRouter from "./routers/playerGamble.js";
 
 const app = express();
 const PORT = process.env.PORT || 8081;
-dotenv.config();
 app.use(express.json());
 
 app.use("/api", [
@@ -17,7 +16,7 @@ app.use("/api", [
   GameRouter,
   PlayerRouter]);
 
-  
+
 app.use("/", async (req, res, next) => {
   res.send("futsal Online project from NBC 힘순조");
 });

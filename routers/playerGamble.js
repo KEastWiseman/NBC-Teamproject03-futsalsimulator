@@ -1,9 +1,9 @@
 import express from "express";
-import { prisma } from "../utils/prisma/index.js";
+import { prisma } from '../util/prisma/index.js'
 import authMiddleware from "../src/middleware/auths/user.authenticator.js";
 
 const router = express.Router();
-
+const TOTAL_COST = 1000;
 
 // 1. 카드 팩 구매 및 사용
 // 1.1. 원하는 카드팩 이름과 갯수를 body에 작성해서 가져오기
@@ -16,21 +16,17 @@ const router = express.Router();
 // 1.3. playerPool에 저장하기
 // 1.4. 캐시에서 해당 금액 뺴고 저장하기
 router.post('/DrawCard', authMiddleware, async(req,res,next) => {
-    const {id} = req.user.id
+    const {accountName} = req.user
     const {purchasePlayer} = req.body;                                                                      //1.1
     
     try {
-        const user = await prisma.user.findfirst({where: {id}});                                            //1.2.1
+        const user = await prisma.user.findFirst({where: {accountName}});                                            //1.2.1
         if(!user) {
             return res.status(400).json({message: "계정의 정보가 유효하지 않습니다. 다시 로그인해주세요"});
         };
 
-        const findPlayer = await prisma.Player.findMany({
-            where: {purchasePlayer},
-            data: {
-                id,
-                name
-            }
+        const findPlayer = await prisma.player.findMany({
+            where: {nationality: purchasePlayer},
         });
         if (!findPlayer) {
             return res.status(400).json({message: "구입하려는 카드팩이 존재하지 않습니다. 카드팩의 이름은 국가명이므로 정확히 작성해주세요"});
@@ -40,22 +36,23 @@ router.post('/DrawCard', authMiddleware, async(req,res,next) => {
             return res.status(400).json({message: " 보유하고 있는 금액이 부족합니다."});
         };
 
-        const getPlayer = getRandom(findPlayer);
+        const targerName = getRandom(findPlayer).name;
+        const getPlayer = await prisma.player.findFirst({where: {name: targerName }});
 
-        const savePlayerId = await prisma.PlayerPool.create({
+        const savePlayerId = await prisma.playerPool.create({
             data: {
-                playerid: getPlayer.id,
-                playername: getPlayer.name
+                userId : user.id,
+                playerId: getPlayer.id,
             }
         });
 
         await prisma.user.update({                                                                      //1.4
-            where:{ id},
-            data: { cash: { decrement: totalCost}}
+            where:{ accountName},
+            data: { cash: { decrement: TOTAL_COST}}
         });
         
-        const updateUserData = await prisma.user.findfirst({
-            where: {id},
+        const updateUserData = await prisma.user.findFirst({
+            where: {accountName},
             select: {cash: true}
         });
 
@@ -70,16 +67,9 @@ router.post('/DrawCard', authMiddleware, async(req,res,next) => {
 // 2.1. 1부터 선수의 총 인원까지의 수 중에 랜덤으로 결정 
 // 2.2. 랜덤값에 해당하는 선수 뽑기
 const getRandom = (packageName) => {
-    let pick = [];
-
+    let pick;
     const randomNumber = Math.floor((Math.random()*(packageName.length))+1);      //2.1
-
-    for (let k=0; k<packageName.length; k++){                                      //2.2
-        if (randomNumber===packageName[k]) {
-            pick+= packageName[k].name;
-        };
-    };
-
+    pick = packageName[randomNumber];
     return pick;
 };
 
