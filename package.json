@@ -6,6 +6,7 @@
   "author": "KEastWiseman <2ehgus6260@gmail.com>",
   "type": "module",
   "license": "MIT",
+  "type" : "module",
   "dependencies": {
     "@prisma/client": "^5.14.0",
     "express": "^4.19.2",
