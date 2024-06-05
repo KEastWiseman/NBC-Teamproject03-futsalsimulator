@@ -1,6 +1,6 @@
 import express from "express";
 import { prisma } from "../utils/prisma/index.js";
-import authMiddleware from "../middlewares/-----------";
+import authMiddleware from "../src/middleware/auths/user.authenticator.js";
 
 const router = express.Router();
 
@@ -54,7 +54,7 @@ router.post('/DrawCard', authMiddleware, async(req,res,next) => {
             data: { cash: { decrement: totalCost}}
         });
         
-        const updateUserData = await prisma.user.findUnique({
+        const updateUserData = await prisma.user.findfirst({
             where: {id},
             select: {cash: true}
         });
