@@ -25,45 +25,33 @@ router.post('/DrawCard', authMiddleware, async(req,res,next) => {
             return res.status(400).json({message: "계정의 정보가 유효하지 않습니다. 다시 로그인해주세요"});
         };
 
-        let totalCost = 0;
-        for (const purchaseList of purchasePlayer) {
-            const { nationality, count} = purchaseList;
-            const PlayerPackage = await prisma.Player.findfirst({ where: nationality})                      //1.2.2
-            if (!PlayerPackage){
-                return res.status(400).json({message: "구입하려는 카드팩이 존재하지 않습니다."});
-            };
-            totalCost += 100 * count;                                                                       //1.2.3
+        const findPlayer = await prisma.Player.findMany({
+            where: {purchasePlayer},
+            data: {
+                id,
+                name
+            }
+        });
+        if (!findPlayer) {
+            return res.status(400).json({message: "구입하려는 카드팩이 존재하지 않습니다. 카드팩의 이름은 국가명이므로 정확히 작성해주세요"});
         };
 
-        if (user.cash < totalCost) {                                                                        //1.2.4
+        if (user.cash < 100) {                                                                        //1.2.4
             return res.status(400).json({message: " 보유하고 있는 금액이 부족합니다."});
         };
 
-        await prisma.$transaction(async (prisma) => {                                                       //1.3
-            for (const purchaseList of purchasePlayer) {
-                const { nationality, count} = purchaseList;
-                const playerByCountry = await prisma.Player.findMany({where: {nationality}});
-                const pickedPlayer = getRandom(playerByCountry, count);
-                const getPlayer = await prisma.Player.findMany({ 
-                    where: {
-                        playername : {
-                            in: pickedPlayer
-                        }
-                    }
-                });
+        const getPlayer = getRandom(findPlayer);
 
-                await prisma.playerPool.createMany({
-                    data: Array(count).fill({
-                        id: getPlayer.id,
-                        name: getPlayer.name
-                    })
-                });
-            };
+        const savePlayerId = await prisma.PlayerPool.create({
+            data: {
+                playerid: getPlayer.id,
+                playername: getPlayer.name
+            }
+        });
 
-            await prisma.user.update({                                                                      //1.4
-                where:{ id},
-                data: { cash: { decrement: totalCost}}
-            });
+        await prisma.user.update({                                                                      //1.4
+            where:{ id},
+            data: { cash: { decrement: totalCost}}
         });
         
         const updateUserData = await prisma.user.findUnique({
@@ -71,7 +59,7 @@ router.post('/DrawCard', authMiddleware, async(req,res,next) => {
             select: {cash: true}
         });
 
-        return res.status(200).json({message: `${getPlayer.name}선수가 뽑혔습니다.`, data: getPlayer, cash: updateUserData.cash});
+        return res.status(200).json({message: `${getPlayer.name}선수가 뽑혔습니다.`, data: savePlayerId, cash: updateUserData.cash});
     } catch(error) {
         console.error("패키지 구매 중 에러가 발생했습니다. :", error);
         return res.status(500).json({message: "패키지 구매 중 에러가 발생했습니다."});
@@ -81,17 +69,17 @@ router.post('/DrawCard', authMiddleware, async(req,res,next) => {
 // 2.선수 뽑기 시스템
 // 2.1. 1부터 선수의 총 인원까지의 수 중에 랜덤으로 결정 
 // 2.2. 랜덤값에 해당하는 선수 뽑기
-const getRandom = (playerpackage, count) => {
+const getRandom = (packageName) => {
     let pick = [];
-    for (let j = 0; j< count-1; j++) {
-        const randomNumber = Math.floor((Math.random()*(playerpackage.length))+1);      //2.1
 
-        for (let k=0; k<percentTable.length; k++){                                      //2.2
-            if (randomNumber===percentTable[k]) {
-                pick+= playerpackage[k].name;
-            };
+    const randomNumber = Math.floor((Math.random()*(packageName.length))+1);      //2.1
+
+    for (let k=0; k<packageName.length; k++){                                      //2.2
+        if (randomNumber===packageName[k]) {
+            pick+= packageName[k].name;
         };
     };
+
     return pick;
 };
 
