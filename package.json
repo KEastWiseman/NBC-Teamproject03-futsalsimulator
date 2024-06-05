@@ -6,9 +6,8 @@
   "author": "KEastWiseman <2ehgus6260@gmail.com>",
   "type": "module",
   "license": "MIT",
-  "type": "module",
   "dependencies": {
-    "@prisma/client": "^5.14.0",
+    "@prisma/client": "^5.15.0",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "prisma": "^5.14.0"
