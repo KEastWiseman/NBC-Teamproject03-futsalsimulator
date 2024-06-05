@@ -1,5 +1,6 @@
 import express from "express";
 import { prisma } from "../util/prisma/index.js";
+import authMiddleware from "../src/middleware/auths/user.authenticator.js";
 
 const router = express.Router();
 
@@ -78,10 +79,9 @@ function MatchGame(homeSquard, awaySquard) {
   return { homeGoal: homeGoal, awayGoal: awayGoal };
 }
 
-router.post("/games/play", async (req, res, next) => {
+router.post("/games/play", authMiddleware, async (req, res, next) => {
   try {
-    const userId = 2;
-
+    const userId = res.userId;
     // 1. Squard 테이블에서 userId에 맞는 정보 찾기
     const homeSquard = await prisma.squard.findFirst({
       where: {
