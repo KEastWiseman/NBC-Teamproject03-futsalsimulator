@@ -1,9 +1,9 @@
 import express from 'express';
-
+import userAuth from '../src/middleware/auths/user.authenticator.js'
 
 const router = express.Router();
 
-router.patch('/users/cash', async(req,res,next)=>{
+router.patch('/users/cash', userAuth, async(req,res,next)=>{
     try{
         const { deposit } = req.body;
         const updatedUser = await userPrisma.user.update({
