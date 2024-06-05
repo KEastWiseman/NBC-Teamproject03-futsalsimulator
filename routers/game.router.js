@@ -4,51 +4,57 @@ import { prisma } from "../util/prisma/index.js";
 const router = express.Router();
 
 function MatchGame(homeSquard, awaySquard) {
-  return { homeGoal: 9, awayGoal: 9 };
-  homeSquard.playerPool;
-
-  let homeShootCount = Math.floor(
-    homeSquard.mid.speed * 0.03 +
-      homeSquard.mid.passing * 0.04 +
-      homeSquard.mid.dribbling * 0.03
-  );
-
-  let homePower =
-    homeSquard.str.heading * 0.03 +
-    homeSquard.str.shooting * 0.04 +
-    homeSquard.str.dribbling * 0.03;
-
-  let homeDeffence =
-    homeSquard.def.tackling * 0.03 +
-    homeSquard.def.marking * 0.04 +
-    homeSquard.def.strength * 0.03;
-
-  let awayShootCount =
-    awaySquard.mid.speed * 0.03 +
-    awaySquard.mid.passing * 0.04 +
-    awaySquard.mid.dribbling * 0.03;
-
-  let awayPower =
-    awaySquard.str.heading * 0.03 +
-    awaySquard.str.shooting * 0.04 +
-    awaySquard.str.dribbling * 0.03;
-
-  let awayDeffence =
-    awaySquard.def.tackling * 0.03 +
-    awaySquard.def.marking * 0.04 +
-    awaySquard.def.strength * 0.03;
-
   let homeScore = {
-    power: homePower,
-    shootCount: homeShootCount,
-    deffence: homeDeffence,
+    power: 0,
+    shootCount: 0,
+    deffence: 0,
   };
 
   let awayScore = {
-    power: awayPower,
-    shootCount: awayShootCount,
-    deffence: awayDeffence,
+    power: 0,
+    shootCount: 0,
+    deffence: 0,
   };
+
+  for (let i = 0; i < homeSquard.length; i++) {
+    homeScore.shootCount += Math.floor(
+      homeSquard[i].speed * 0.03 +
+        homeSquard[i].passing * 0.04 +
+        homeSquard[i].dribbling * 0.03
+    );
+
+    homeScore.power +=
+      homeSquard[i].heading * 0.03 +
+      homeSquard[i].shooting * 0.04 +
+      homeSquard[i].dribbling * 0.03;
+
+    homeScore.deffence +=
+      homeSquard[i].tackling * 0.03 +
+      homeSquard[i].marking * 0.04 +
+      homeSquard[i].strength * 0.03;
+  }
+
+  for (let i = 0; i < awaySquard.length; i++) {
+    awayScore.shootCount += Math.floor(
+      awaySquard[i].speed * 0.03 +
+        awaySquard[i].passing * 0.04 +
+        awaySquard[i].dribbling * 0.03
+    );
+
+    awayScore.power +=
+      awaySquard[i].heading * 0.03 +
+      awaySquard[i].shooting * 0.04 +
+      awaySquard[i].dribbling * 0.03;
+
+    awayScore.deffence +=
+      awaySquard[i].tackling * 0.03 +
+      awaySquard[i].marking * 0.04 +
+      awaySquard[i].strength * 0.03;
+  }
+
+  // 길이만큼 나누기
+  homeScore.shootCount = Math.floor(homeScore.shootCount / homeSquard.length);
+  awayScore.shootCount = Math.floor(awayScore.shootCount / awaySquard.length);
 
   // home팀 공격
   let homeGoal = 0;
@@ -74,37 +80,58 @@ function MatchGame(homeSquard, awaySquard) {
 
 router.post("/games/play", async (req, res, next) => {
   try {
-    // 헤더에서 accessToken 추출
-    // const token = req.headers.authorization.split(" ")[1];
-
-    // 토큰 검증 및 해석 (비밀키는 환경 변수로 관리)
-    // const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // 토큰에서 유저 ID 추출
     const userId = 2;
 
-    // 홈 유저의 Squard와 관련된 Player 정보를 포함하여 가져오기
+    // 1. Squard 테이블에서 userId에 맞는 정보 찾기
     const homeSquard = await prisma.squard.findFirst({
       where: {
         userId: userId,
       },
-      include: {
-        playerPool: {
-          include: {
-            playerIndex: true,
-          },
-        },
-      },
     });
-
-    console.log(homeSquard);
 
     if (!homeSquard) {
       return res.status(404).json({ message: "User를 찾을 수 없습니다" });
     }
 
-    // 홈 Squard의 플레이어 정보 (스탯 포함)
-    const homePlayers = homeSquard.playerPool.map((pool) => pool.id);
+    // 2. 해당 Squard의 playerPoolId를 사용하여 PlayerPool 테이블에서 정보 찾기
+    const playerPoolId = homeSquard.playerPoolId;
+
+    // 3. PlayerPool 테이블에서 playerPoolId에 맞는 정보 찾기
+    const playerPool = await prisma.playerPool.findFirst({
+      where: {
+        id: playerPoolId,
+      },
+    });
+
+    if (!playerPool) {
+      return res
+        .status(404)
+        .json({ message: "PlayerPool을 찾을 수 없습니다." });
+    }
+
+    // 4. PlayerPool 테이블에서 userId에 맞는 모든 Player의 스탯 가져오기
+    const userPlayerPools = await prisma.playerPool.findMany({
+      where: {
+        userId: playerPool.userId,
+      },
+      include: {
+        playerIndex: true,
+      },
+    });
+
+    // Player들의 스탯 정보 가져오기
+    const homePlayers = userPlayerPools.map((pool) => ({
+      speed: pool.playerIndex.speed,
+      passing: pool.playerIndex.passing,
+      dribbling: pool.playerIndex.dribbling,
+      heading: pool.playerIndex.heading,
+      shooting: pool.playerIndex.shooting,
+      tackling: pool.playerIndex.tackling,
+      marking: pool.playerIndex.marking,
+      strength: pool.playerIndex.strength,
+    }));
+
+    //console.log(homePlayers);
 
     // 홈 Squard를 제외한 나머지 Squard를 조회
     const allSquardsExceptHome = await prisma.squard.findMany({
@@ -134,8 +161,41 @@ router.post("/games/play", async (req, res, next) => {
     );
     const awaySquard = allSquardsExceptHome[randomSquardIndex];
 
-    // 어웨이 Squard의 플레이어 정보 (스탯 포함)
-    const awayPlayers = awaySquard.playerPool.map((pool) => pool.playerIndex);
+    const awayPlayerPoolId = awaySquard.playerPoolId;
+
+    const awayPlayerPool = await prisma.playerPool.findFirst({
+      where: {
+        id: awayPlayerPoolId,
+      },
+    });
+
+    if (!awayPlayerPool) {
+      return res
+        .status(404)
+        .json({ message: "Away PlayerPool을 찾을 수 없습니다." });
+    }
+
+    const awayUserPlayerPools = await prisma.playerPool.findMany({
+      where: {
+        userId: awayPlayerPool.userId,
+      },
+      include: {
+        playerIndex: true,
+      },
+    });
+
+    const awayPlayers = awayUserPlayerPools.map((pool) => ({
+      speed: pool.playerIndex.speed,
+      passing: pool.playerIndex.passing,
+      dribbling: pool.playerIndex.dribbling,
+      heading: pool.playerIndex.heading,
+      shooting: pool.playerIndex.shooting,
+      tackling: pool.playerIndex.tackling,
+      marking: pool.playerIndex.marking,
+      strength: pool.playerIndex.strength,
+    }));
+
+    //console.log(awayPlayers);
 
     const result = MatchGame(homePlayers, awayPlayers);
 
@@ -152,20 +212,14 @@ router.post("/games/play", async (req, res, next) => {
     if (result.homeGoal > result.awayGoal) {
       return res.status(201).json({
         message: `${result.homeGoal} : ${result.awayGoal}로 승리!`,
-        homePlayers,
-        awayPlayers,
       });
     } else if (result.homeGoal === result.awayGoal) {
       return res.status(201).json({
         message: `${result.homeGoal} : ${result.awayGoal}로 무승부!`,
-        homePlayers,
-        awayPlayers,
       });
     } else {
       return res.status(201).json({
         message: `${result.homeGoal} : ${result.awayGoal}로 패배!`,
-        homePlayers,
-        awayPlayers,
       });
     }
   } catch (err) {
