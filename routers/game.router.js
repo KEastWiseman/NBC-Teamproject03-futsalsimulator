@@ -4,6 +4,9 @@ import { prisma } from "../util/prisma/index.js";
 const router = express.Router();
 
 function MatchGame(homeSquard, awaySquard) {
+  return { homeGoal: 9, awayGoal: 9 };
+  homeSquard.playerPool;
+
   let homeShootCount = Math.floor(
     homeSquard.mid.speed * 0.03 +
       homeSquard.mid.passing * 0.04 +
@@ -68,36 +71,62 @@ function MatchGame(homeSquard, awaySquard) {
   }
   return { homeGoal: homeGoal, awayGoal: awayGoal };
 }
+
 router.post("/games/play", async (req, res, next) => {
   try {
-    // // 헤더에서 accessToken 추출
-    // const token = req.headers.authorization.split(' ')[1];
+    // 헤더에서 accessToken 추출
+    // const token = req.headers.authorization.split(" ")[1];
 
-    // // 토큰 검증 및 해석 (비밀키는 환경 변수로 관리)
+    // 토큰 검증 및 해석 (비밀키는 환경 변수로 관리)
     // const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // // 토큰에서 유저 ID 추출
-    // const userId = decoded.id;
-    const userId = 0;
+    // 토큰에서 유저 ID 추출
+    const userId = 2;
 
+    // 홈 유저의 Squard와 관련된 Player 정보를 포함하여 가져오기
     const homeSquard = await prisma.squard.findFirst({
       where: {
         userId: userId,
       },
+      include: {
+        playerPool: {
+          include: {
+            playerIndex: true,
+          },
+        },
+      },
     });
+
+    console.log(homeSquard);
 
     if (!homeSquard) {
       return res.status(404).json({ message: "User를 찾을 수 없습니다" });
     }
 
-    // homeSquard를 제외한 나머지 Squard를 조회
+    // 홈 Squard의 플레이어 정보 (스탯 포함)
+    const homePlayers = homeSquard.playerPool.map((pool) => pool.id);
+
+    // 홈 Squard를 제외한 나머지 Squard를 조회
     const allSquardsExceptHome = await prisma.squard.findMany({
       where: {
         NOT: {
           id: homeSquard.id,
         },
       },
+      include: {
+        playerPool: {
+          include: {
+            playerIndex: true,
+          },
+        },
+      },
     });
+
+    if (allSquardsExceptHome.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "다른 Squard를 찾을 수 없습니다" });
+    }
 
     // 나머지 Squard 중 무작위로 하나 선택
     const randomSquardIndex = Math.floor(
@@ -105,7 +134,10 @@ router.post("/games/play", async (req, res, next) => {
     );
     const awaySquard = allSquardsExceptHome[randomSquardIndex];
 
-    const result = MatchGame(homeSquard, awaySquard);
+    // 어웨이 Squard의 플레이어 정보 (스탯 포함)
+    const awayPlayers = awaySquard.playerPool.map((pool) => pool.playerIndex);
+
+    const result = MatchGame(homePlayers, awayPlayers);
 
     // Match 테이블에 결과 입력
     const matchResult = await prisma.matching.create({
@@ -116,19 +148,25 @@ router.post("/games/play", async (req, res, next) => {
       },
     });
 
-    //경기 결과
+    // 경기 결과에 따라 응답 반환
     if (result.homeGoal > result.awayGoal) {
-      return res
-        .status(201)
-        .json({ message: `${matchResult.result}로 승리!` });
-    } else if (homeGoal === awayGoal) {
-      return res
-        .status(201)
-        .json({ message: `${matchResult.result}로 무승부!` });
+      return res.status(201).json({
+        message: `${result.homeGoal} : ${result.awayGoal}로 승리!`,
+        homePlayers,
+        awayPlayers,
+      });
+    } else if (result.homeGoal === result.awayGoal) {
+      return res.status(201).json({
+        message: `${result.homeGoal} : ${result.awayGoal}로 무승부!`,
+        homePlayers,
+        awayPlayers,
+      });
     } else {
-      return res
-        .status(201)
-        .json({ message: `${matchResult.result}로 패배!` });
+      return res.status(201).json({
+        message: `${result.homeGoal} : ${result.awayGoal}로 패배!`,
+        homePlayers,
+        awayPlayers,
+      });
     }
   } catch (err) {
     next(err);

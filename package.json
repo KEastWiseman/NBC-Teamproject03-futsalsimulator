@@ -4,6 +4,7 @@
   "main": "index.js",
   "repository": "https://github.com/KEastWiseman/NBC-Teamproject03-futsalsimulator",
   "author": "KEastWiseman <2ehgus6260@gmail.com>",
+  "type": "module",
   "license": "MIT",
   "dependencies": {
     "@prisma/client": "^5.14.0",
