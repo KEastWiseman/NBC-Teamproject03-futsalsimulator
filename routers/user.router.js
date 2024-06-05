@@ -6,7 +6,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 const app = express();
-
 const SECRET_KEY = 'supersecretkey';
 const userIdRegex = /^[a-z0-9]+$/;
 const passwordRegex = /^[a-zA-Z\d\W]{6,}$/
@@ -50,7 +49,6 @@ app.post('/api/sign-up', async (req, res) => {
                 cash: 10000, // 캐시 초기값
             },
         });
-
         res.status(201).json({ message: `${userId}로 가입되었습니다`, createdAt: new Date() });
     } catch (error) {
         console.error('회원가입 중 오류 발생:', error);
@@ -69,9 +67,7 @@ app.post('/api/sign-in', async (req, res) => {
 
     try {
         // 사용자 조회
-
         const user = await futsalPrisma.user.findUnique({
-
             where: {
                 userId,
             },
