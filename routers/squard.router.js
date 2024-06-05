@@ -1,12 +1,17 @@
 import express from 'express';
 import { prisma } from '../util/prisma/index.js';
+import ua from '../src/middleware/auths/user.authenticator.js'
 
 const router = express.Router();
 
+// 스쿼드 인원 3명 이상일 경우 에러 반환
+
+// 제거 시, 제거 대상 없을 경우 에러 반환
+
 // 스쿼드 생성
-router.post('/', async (req, res) => {
-  console.log("스쿼드 생성 요청 수신:", req.body);
-  const { userId, playerPoolId } = req.body;
+router.post('/users/squard', ua ,async (req, res) => {
+  const userId = req.user.id;
+  const { playerPoolId } = req.body;
   
   if (!playerPoolId) {
     return res.status(400).json({ error: 'playerPoolId가 필요합니다.' });
@@ -56,7 +61,7 @@ router.post('/', async (req, res) => {
 });
 
 // 스쿼드 수정
-router.put('/:squardId', async (req, res) => {
+router.put('/users/squard/:squardId', async (req, res) => {
   const { squardId } = req.params;
   const { playerPoolId } = req.body;
 
@@ -105,7 +110,7 @@ router.put('/:squardId', async (req, res) => {
 });
 
 // 스쿼드 삭제
-router.delete('/:squardId', async (req, res) => {
+router.delete('/users/squard/:squardId', async (req, res) => {
   const { squardId } = req.params;
   try {
     // Squard를 삭제합니다.
@@ -121,11 +126,11 @@ router.delete('/:squardId', async (req, res) => {
 });
 
 // 스쿼드 조회
-router.get('/:userId', async (req, res) => {
+router.get('/users/squard/:userId', async (req, res) => {
   const { userId } = req.params;
   try {
-    const squard = await prisma.squard.findFirst({
-      where: { userId: parseInt(userId) },
+    const squard = await prisma.squard.findMany({
+      where: { userId: +userId },
       include: { playerPool: true },
     });
     if (squard) {

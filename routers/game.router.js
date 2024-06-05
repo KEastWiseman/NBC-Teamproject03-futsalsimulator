@@ -4,6 +4,11 @@ import authMiddleware from "../src/middleware/auths/user.authenticator.js";
 
 const router = express.Router();
 
+// 스쿼드 인원 3명인거 홈 팀과 어웨이팀 둘다 체크
+// 어웨이 팀에 스쿼드 유무 (3명아닐 경우 다른 팀 추가 탐색)
+
+// 한 팀도 없을 경우 매칭 대상 없다 반환
+
 function MatchGame(homeSquard, awaySquard) {
   let homeScore = {
     power: 0,
@@ -83,11 +88,11 @@ router.post(
   "/games/play",
   authMiddleware, async (req, res, next) => {
     try {
-      const userId = res.user.userId;
+      const userId = req.user.id;
       // 1. Squard 테이블에서 userId에 맞는 정보 찾기
       const homeSquards = await prisma.squard.findMany({
         where: {
-          userId: userId,
+          userId: +userId,
         },
       });
 
