@@ -18,9 +18,10 @@ model User{
   accountName String @unique @map("accountName")
   password String @map("password")
   createdAt DateTime @default(now()) @map("createdAt")
+  cash Int @map("cash")
 
   playerPool PlayerPool[]
-  squard Squard?
+  squard Squard[]
   home Matching[] @relation(name: "UserAMatches")
   away Matching[] @relation(name: "UserBMatches")
   @@map("User")
@@ -58,7 +59,7 @@ model PlayerPool{
 
 model Squard{
   id Int @id @default(autoincrement()) @map("id")
-  userId Int @unique @map("userId")
+  userId Int @map("userId")
   playerPoolId Int @unique @map("playerPoolId")
 
   playerPool PlayerPool @relation(fields : [playerPoolId], references:[id], onDelete:Cascade)

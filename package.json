@@ -4,6 +4,7 @@
   "main": "index.js",
   "repository": "https://github.com/KEastWiseman/NBC-Teamproject03-futsalsimulator",
   "author": "KEastWiseman <2ehgus6260@gmail.com>",
+  "type": "module",
   "license": "MIT",
   "type": "module",
   "dependencies": {
@@ -16,5 +17,8 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.2"
+  },
+  "scripts": {
+    "dev": "nodemon app.js"
   }
 }

@@ -1,23 +1,26 @@
 import express from 'express';
-
+import userAuth from '../src/middleware/auths/user.authenticator.js';
+import { prisma } from '../util/prisma/index.js'
 
 const router = express.Router();
 
-router.patch('/users/cash', async(req,res,next)=>{
+router.patch('/users/cash', userAuth, async(req,res,next)=>{
     try{
         const { deposit } = req.body;
-        const updatedUser = await userPrisma.user.update({
-            where : { userId: req.body.user.userId },
+        const user = req.user;
+        const updatedUser = await prisma.user.update({
+            where : { id: +user.id },
             data :{
                 cash:{
-                    increment : deposit,
+                    increment : +deposit,
                 },
             },
         });
 
-        return res.status(200).json({message:'입금 완료되었습니다', data:updatedUser})
+        return res.status(200).json({message:'캐쉬 충전되었습니다', data:updatedUser})
     } catch (err){
-        next(err);
+        console.error('캐쉬 충전 중 에러 발생:', err);
+        res.status(500).json({ message: '서버 오류' });
     }
 })
 
