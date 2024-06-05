@@ -1,10 +1,10 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
+import { futsalPrisma } from '../util/prisma/index.js';
 
 const app = express();
-const prisma = new PrismaClient();
+
 const SECRET_KEY = 'supersecretkey';
 
 app.use(bodyParser.json());
@@ -18,13 +18,24 @@ app.post('/api/sign-up', async (req, res) => {
         return res.status(400).json({ message: "userId 또는 password를 입력하세요" });
     }
 
+    // userID 중복 체크
+    const userExistChecker = await futsalPrisma.user.findFirst({
+        where:{
+            userId,
+        }
+    })
+
+    if(userExistChecker){
+        return res.status(409).json({message:"이미 존재하는 사용자ID 입니다"})
+    }
+
     try {
         // 사용자 생성
-        const newUser = await prisma.user.create({
+        const newUser = await futsalPrisma.user.create({
             data: {
                 userId,
                 password,
-                cash: 0, // 캐시 초기값
+                cash: 10000, // 캐시 초기값
             },
         });
 
@@ -46,7 +57,9 @@ app.post('/api/sign-in', async (req, res) => {
 
     try {
         // 사용자 조회
-        const user = await prisma.user.findUnique({
+
+        const user = await futsalPrisma.user.findUnique({
+
             where: {
                 userId,
             },

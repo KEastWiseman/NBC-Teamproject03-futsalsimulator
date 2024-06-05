@@ -15,9 +15,10 @@ router.patch('/users/cash', async(req,res,next)=>{
             },
         });
 
-        return res.status(200).json({message:'입금 완료되었습니다', data:updatedUser})
+        return res.status(200).json({message:'캐쉬 충전되었습니다', data:updatedUser})
     } catch (err){
-        next(err);
+        console.error('캐쉬 충전 중 에러 발생:', error);
+        res.status(500).json({ message: '서버 오류' });
     }
 })
 
