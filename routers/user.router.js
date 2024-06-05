@@ -17,6 +17,9 @@ app.post('/api/sign-up', async (req, res) => {
         return res.status(400).json({ message: "userId 또는 password를 입력하세요" });
     }
 
+    // 1. ID 조건 체크 추가 (영소문자 + 숫자로만 구성하기)
+    // 2. 비밀번호 조건 체크 추가 (6자리이상)
+
     // userID 중복 체크
     const userExistChecker = await futsalPrisma.user.findFirst({
         where:{
@@ -63,7 +66,8 @@ app.post('/api/sign-in', async (req, res) => {
 
         // 사용자가 존재하고 비밀번호가 일치하는 경우
         if (user && user.password === password) {
-            const token = jwt.sign({ userId: user.userId }, 'supersecretkey');
+            const token = jwt.sign({ userId: user.userId }, /* 3. dotenv > .env 특수 값*/);
+            // 4. 생성된 token > res headers ['authorization']에 넣어서 보내야된다
             res.status(200).json({ message: `${userId}님 환영합니다`, cash: user.cash, createdAt: new Date(), token });
         } else {
             res.status(401).json({ message: '인증 실패' });
@@ -72,20 +76,4 @@ app.post('/api/sign-in', async (req, res) => {
         console.error('로그인 중 오류 발생:', error);
         res.status(500).json({ message: '서버 오류' });
     }
-});
-
-
-function authenticateToken(req, res, next) {
-    const token = req.headers['authorization'];
-    if (!token) return res.sendStatus(403);
-
-    jwt.verify(token, SECRET_KEY, (err, user) => {
-        if (err) return res.sendStatus(403);
-        req.user = user;
-        next();
-    });
-}
-
-app.get('/protected', authenticateToken, (req, res) => {
-    res.json({ message: 'This is a protected route', user: req.user });
 });
