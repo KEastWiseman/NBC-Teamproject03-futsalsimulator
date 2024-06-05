@@ -53,10 +53,10 @@ router.post('/DrawCard', authMiddleware, async(req,res,next) => {
                 });
 
                 await prisma.playerPool.createMany({
-                    data: {
+                    data: Array(count).fill({
                         id: getPlayer.id,
                         name: getPlayer.name
-                    }
+                    })
                 });
             };
 
