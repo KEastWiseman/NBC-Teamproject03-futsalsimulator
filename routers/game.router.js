@@ -28,19 +28,19 @@ async function calculateScoreAndUpdateInjury(squard, isHome) {
           squard[i].passing * PASSING_VALUE +
           squard[i].dribbling * DRIBBLING_VALUE
       ) +
-      squard[i].playerLevel * LEVEL_VALUE;
+      (squard[i].playerLevel - 1) * LEVEL_VALUE;
 
     score.power +=
       squard[i].heading * HEADING_VALUE +
       squard[i].shooting * SHOOTING_VALUE +
       squard[i].dribbling * DRIBBLING_VALUE +
-      squard[i].playerLevel * LEVEL_VALUE;
+      (squard[i].playerLevel - 1) * LEVEL_VALUE;
 
     score.deffence +=
       squard[i].tackling * TACKLING_VALUE +
       squard[i].marking * MARKING_VALUE +
       squard[i].strength * STRENGTH_VALUE +
-      squard[i].playerLevel * LEVEL_VALUE;
+      (squard[i].playerLevel - 1) * LEVEL_VALUE;
 
     if (!isHome) {
       continue;
