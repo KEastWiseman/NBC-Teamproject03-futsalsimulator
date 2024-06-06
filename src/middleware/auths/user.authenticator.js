@@ -28,7 +28,7 @@ export default async function (req, res, next){
         req.user=user;
         next();
     }
-    catch{
+    catch(error){
         switch(error.name){
             case 'TokenExpiredError' :
                 return res.status(401).json({message:'토큰이 만료되었습니다'});
