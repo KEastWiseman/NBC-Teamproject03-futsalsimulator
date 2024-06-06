@@ -3,116 +3,92 @@ import { prisma } from "../util/prisma/index.js";
 import authMiddleware from "../src/middleware/auths/user.authenticator.js";
 
 const router = express.Router();
+//스탯 계수 설정
+const LEVEL_VALUE = 3;
+const SPEED_VALUE = 0.03;
+const PASSING_VALUE = 0.04;
+const DRIBBLING_VALUE = 0.03;
+const HEADING_VALUE = 0.03;
+const SHOOTING_VALUE = 0.04;
+const TACKLING_VALUE = 0.03;
+const MARKING_VALUE = 0.04;
+const STRENGTH_VALUE = 0.03;
 
-function MatchGame(homeSquard, awaySquard) {
-  let homeScore = {
+async function calculateScoreAndUpdateInjury(squard, isHome) {
+  let score = {
     power: 0,
     shootCount: 0,
     deffence: 0,
   };
 
-  let awayScore = {
-    power: 0,
-    shootCount: 0,
-    deffence: 0,
-  };
+  for (let i = 0; i < squard.length; i++) {
+    score.shootCount +=
+      Math.floor(
+        squard[i].speed * SPEED_VALUE +
+          squard[i].passing * PASSING_VALUE +
+          squard[i].dribbling * DRIBBLING_VALUE
+      ) +
+      squard[i].playerLevel * LEVEL_VALUE;
 
-  for (let i = 0; i < homeSquard.length; i++) {
-    homeScore.shootCount += Math.floor(
-      homeSquard[i].speed * 0.03 +
-        homeSquard[i].passing * 0.04 +
-        homeSquard[i].dribbling * 0.03
-    );
+    score.power +=
+      squard[i].heading * HEADING_VALUE +
+      squard[i].shooting * SHOOTING_VALUE +
+      squard[i].dribbling * DRIBBLING_VALUE +
+      squard[i].playerLevel * LEVEL_VALUE;
 
-    homeScore.power +=
-      homeSquard[i].heading * 0.03 +
-      homeSquard[i].shooting * 0.04 +
-      homeSquard[i].dribbling * 0.03;
+    score.deffence +=
+      squard[i].tackling * TACKLING_VALUE +
+      squard[i].marking * MARKING_VALUE +
+      squard[i].strength * STRENGTH_VALUE +
+      squard[i].playerLevel * LEVEL_VALUE;
 
-    homeScore.deffence +=
-      homeSquard[i].tackling * 0.03 +
-      homeSquard[i].marking * 0.04 +
-      homeSquard[i].strength * 0.03;
-  }
+    if (!isHome) {
+      continue;
+    }
 
-  for (let i = 0; i < awaySquard.length; i++) {
-    awayScore.shootCount += Math.floor(
-      awaySquard[i].speed * 0.03 +
-        awaySquard[i].passing * 0.04 +
-        awaySquard[i].dribbling * 0.03
-    );
+    const isSidelined = Math.random() >= 0.9;
+    const updatedData = {
+      stamina: squard[i].stamina - 10,
+    };
 
-    awayScore.power +=
-      awaySquard[i].heading * 0.03 +
-      awaySquard[i].shooting * 0.04 +
-      awaySquard[i].dribbling * 0.03;
+    if (isSidelined) {
+      updatedData.sidelined = true;
+    }
 
-    awayScore.deffence +=
-      awaySquard[i].tackling * 0.03 +
-      awaySquard[i].marking * 0.04 +
-      awaySquard[i].strength * 0.03;
+    await prisma.playerPool.update({
+      where: {
+        id: squard[i].playerPoolId,
+      },
+      data: updatedData,
+    });
   }
 
   // 길이만큼 나누기
-  homeScore.shootCount = Math.floor(homeScore.shootCount / homeSquard.length);
-  awayScore.shootCount = Math.floor(awayScore.shootCount / awaySquard.length);
+  score.shootCount = Math.floor(score.shootCount / squard.length);
 
-  // home팀 공격
-  let homeGoal = 0;
-
-  for (let i = 0; i < homeScore.shootCount; i++) {
-    //슈팅 시도
-    let homeAttack =
-      Math.random() * (homeScore.power - awayScore.deffence + 100);
-    homeGoal += homeAttack > 50 ? 1 : 0;
-  }
-
-  // away팀 공격
-  let awayGoal = 0;
-
-  for (let i = 0; i < awayScore.shootCount; i++) {
-    //슈팅 시도
-    let awayAttack =
-      Math.random() * (awayScore.power - homeScore.deffence + 100);
-    awayGoal += awayAttack > 50 ? 1 : 0;
-  }
-  return { homeGoal: homeGoal, awayGoal: awayGoal };
+  return score;
 }
 
-async function getAllSquardsWithExactThreeUsersExceptHome(userIdToExclude) {
-  // userId를 그룹화하고, 각 그룹의 Squard 수를 셉니다.
-  const userIdsWithThreeSquards = await prisma.squard.groupBy({
-    by: ["userId"],
-    _count: {
-      userId: true,
-    },
-    having: {
-      userId: {
-        _count: {
-          equals: 3
-        }
-      },
-    },
-    where: {
-      userId: {
-        not: userIdToExclude,
-      },
-    },
-  });
+function calculateGoals(score, opponentDefence) {
+  let goals = 0;
 
-  // 그룹화 결과에서 userId만 추출합니다.
-  const userIds = userIdsWithThreeSquards.map((group) => group.userId);
+  for (let i = 0; i < score.shootCount; i++) {
+    // 슈팅 시도
+    let attack = Math.random() * (score.power - opponentDefence + 100);
+    goals += attack > 50 ? 1 : 0;
+  }
 
-  // 추출된 userId를 가진 Squard들을 가져옵니다.
-  const allSquardsExceptHome = await prisma.squard.findMany({
-    where: {
-      userId: {
-        in: userIds,
-      },
-    },
-  });
+  return goals;
+}
 
-  return allSquardsExceptHome;
+async function MatchGame(homeSquard, awaySquard) {
+  const homeScore = await calculateScoreAndUpdateInjury(homeSquard, true);
+  const awayScore = await calculateScoreAndUpdateInjury(awaySquard, false);
+
+  const homeGoal = calculateGoals(homeScore, awayScore.deffence);
+  const awayGoal = calculateGoals(awayScore, homeScore.deffence);
+
+  return { homeGoal: homeGoal, awayGoal: awayGoal };
 }
 
 async function getPlayerStatsFromSquards(squards) {
@@ -138,6 +114,9 @@ async function getPlayerStatsFromSquards(squards) {
         tackling: playerPool.playerIndex.tackling,
         marking: playerPool.playerIndex.marking,
         strength: playerPool.playerIndex.strength,
+        playerLevel: playerPool.playerLevel,
+        sidelined: playerPool.sidelined,
+        stamina: playerPool.stamina,
       });
     }
   }
@@ -145,10 +124,72 @@ async function getPlayerStatsFromSquards(squards) {
   return players;
 }
 
-router.post("/games/play", /*authMiddleware,*/ async (req, res, next) => {
+async function updateMmr(userId, value) {
+  // 1. 현재 userId에 해당하는 사용자의 mmr 값을 가져오기
+  const user = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      mmr: true,
+    },
+  });
+
+  const newMmr = user.mmr + value;
+
+  // 2. mmr 값을 변경하고 업데이트하기
+  const updatedUser = await prisma.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      mmr: newMmr,
+    },
+  });
+}
+
+async function findUserWithinMMRRanges(userId) {
+  const selectedUser = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    include: {
+      squard: true,
+    },
+  });
+
+  const selectedMMR = selectedUser.mmr;
+
+  const range = 50;
+  let minMMR = selectedMMR - range;
+  let maxMMR = selectedMMR + range;
+
+  let foundUser = null;
+
+  while (!foundUser && maxMMR <= 1050) {
+    foundUser = await prisma.user.findFirst({
+      where: {
+        mmr: {
+          gte: minMMR, // Greater Than or Equal 줄임말. Prisma 쿼리
+          lte: maxMMR, // Less Than or Equal 줄임말. Prisma 쿼리
+        },
+      },
+    });
+
+    if (!foundUser || foundUser.id === userId) {
+      minMMR -= range;
+      maxMMR += range;
+      foundUser = null;
+    }
+  }
+
+  return foundUser;
+}
+
+router.post("/games/play", authMiddleware, async (req, res, next) => {
   try {
-    //const userId = req.user.id;
-    const userId = 5;
+    const userId = req.user.id;
+
     // 1. Squard 테이블에서 userId에 맞는 정보 찾기
     const homeSquards = await prisma.squard.findMany({
       where: {
@@ -171,21 +212,20 @@ router.post("/games/play", /*authMiddleware,*/ async (req, res, next) => {
         .json({ message: "PlayerPool을 찾을 수 없습니다." });
     }
 
-    // 홈 Squard를 제외한 나머지 Squard를 조회
-    const allSquardsExceptHome =
-      await getAllSquardsWithExactThreeUsersExceptHome(userId);
-
-    if (allSquardsExceptHome.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "다른 Squard를 찾을 수 없습니다" });
+    for (let i = 0; i < homePlayers.length; i++) {
+      if (homePlayers[i].stamina <= 0 || homePlayers[i].sidelined) {
+        return res
+          .status(400)
+          .json({ message: "스쿼드에 경기를 뛸 수 없는 선수가 있습니다" });
+      }
     }
 
-    // 나머지 Squard 중 무작위로 하나 선택
-    const randomSquardIndex = Math.floor(
-      Math.random() * allSquardsExceptHome.length
-    );
-    const awayUserId = allSquardsExceptHome[randomSquardIndex].userId;
+    const foundUser = await findUserWithinMMRRanges(userId);
+
+    if (!foundUser) {
+      return res.status(400).json({ message: "매칭 상대를 찾을 수 없습니다." });
+    }
+    const awayUserId = foundUser.id;
 
     // 선택된 유저의 모든 스쿼드 조회
     const awaySquards = await prisma.squard.findMany({
@@ -203,7 +243,8 @@ router.post("/games/play", /*authMiddleware,*/ async (req, res, next) => {
         .json({ message: "Away PlayerPool을 찾을 수 없습니다." });
     }
 
-    const result = MatchGame(homePlayers, awayPlayers);
+    // homePlayer stamina 감소
+    const result = await MatchGame(homePlayers, awayPlayers);
 
     // Match 테이블에 결과 입력
     const matchResult = await prisma.matching.create({
@@ -214,20 +255,25 @@ router.post("/games/play", /*authMiddleware,*/ async (req, res, next) => {
       },
     });
 
+    const responseMessage = "";
     // 경기 결과에 따라 응답 반환
     if (result.homeGoal > result.awayGoal) {
-      return res.status(201).json({
-        message: `${result.homeGoal} : ${result.awayGoal}로 승리!`,
-      });
+      responseMessage = `${result.homeGoal} : ${result.awayGoal}로 승리!`;
+
+      updateMmr(userId, 10);
+      updateMmr(awayUserId, -10);
     } else if (result.homeGoal === result.awayGoal) {
-      return res.status(201).json({
-        message: `${result.homeGoal} : ${result.awayGoal}로 무승부!`,
-      });
+      responseMessage = `${result.homeGoal} : ${result.awayGoal}로 무승부!`;
     } else {
-      return res.status(201).json({
-        message: `${result.homeGoal} : ${result.awayGoal}로 패배!`,
-      });
+      responseMessage = `${result.homeGoal} : ${result.awayGoal}로 패배!`;
+
+      updateMmr(userId, -10);
+      updateMmr(awayUserId, 10);
     }
+
+    return res.status(201).json({
+      message: responseMessage,
+    });
   } catch (err) {
     next(err);
   }
