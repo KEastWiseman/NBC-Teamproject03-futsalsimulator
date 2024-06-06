@@ -117,6 +117,7 @@ async function getPlayerStatsFromSquards(squards) {
         playerLevel: playerPool.playerLevel,
         sidelined: playerPool.sidelined,
         stamina: playerPool.stamina,
+        playerPoolId : playerPool.id,
       });
     }
   }
@@ -166,7 +167,7 @@ async function findUserWithinMMRRanges(userId) {
 
   let foundUser = null;
 
-  while (!foundUser && maxMMR <= 1050) {
+  while (!foundUser) {
     foundUser = await prisma.user.findFirst({
       where: {
         mmr: {
@@ -174,6 +175,7 @@ async function findUserWithinMMRRanges(userId) {
           lte: maxMMR, // Less Than or Equal 줄임말. Prisma 쿼리
         },
       },
+
     });
 
     if (!foundUser || foundUser.id === userId) {
@@ -181,6 +183,7 @@ async function findUserWithinMMRRanges(userId) {
       maxMMR += range;
       foundUser = null;
     }
+
   }
 
   return foundUser;
@@ -293,7 +296,7 @@ router.post("/games/play", authMiddleware, async (req, res, next) => {
       },
     });
 
-    const responseMessage = "";
+    let responseMessage = "";
     // 경기 결과에 따라 응답 반환
     if (result.homeGoal > result.awayGoal) {
       responseMessage = `${result.homeGoal} : ${result.awayGoal}로 승리!`;

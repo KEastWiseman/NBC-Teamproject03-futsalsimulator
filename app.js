@@ -7,6 +7,7 @@ import PlayerRouter from "./routers/playerGamble.js";
 import SquardRouter from './routers/squard.router.js';
 import UpgradeRouter from './routers/upgradePlayer.js';
 import startRankBoardUpdater from './src/updateRanking.js';
+import RankRouter from './routers/rank.router.js'
 
 const app = express();
 const PORT = process.env.PORT || 8081;
@@ -20,7 +21,8 @@ app.use("/api", [
   GameRouter,
   SquardRouter,
   UpgradeRouter,
-  PlayerRouter]);
+  PlayerRouter,
+  RankRouter]);
 
 
 app.use("/", async (req, res, next) => {
