@@ -19,20 +19,21 @@ model User{
   password String @map("password")
   createdAt DateTime @default(now()) @map("createdAt")
   cash Int @map("cash")
-  mmr Int @map("mmr")
+  mmr Int @default(1000) @map("mmr") 
 
   
   playerPool PlayerPool[]
   squard Squard[]
   home Matching[] @relation(name: "UserAMatches")
   away Matching[] @relation(name: "UserBMatches")
+  rank UserTopRankings?
   @@map("User")
 }
 
 model UserTopRankings{
   userId Int @id @map("userId")
   rank Int @map("rank")
-  mmr Int @map("rank")
+  mmr Int @map("mmr")
 
   user User @relation(fields:[userId], references:[id], onDelete: Cascade)
   @@map("UserTopRankings")
@@ -62,9 +63,10 @@ model PlayerPool{
   playerId Int @map("playerId")
   createdAt DateTime @default(now()) @map("createdAt")
   playerLevel Int @map("playerLevel")
+  playerName String @map("playerName")
   count Int @map("count")
-  sidelined Boolean @map(sidelined)
-  stamina Int @map("stamina")
+  sidelined Boolean @default(false) @map("sidelined")
+  stamina Int @default(100) @map("stamina")
 
 
   user User @relation(fields:[userId], references:[id], onDelete : Cascade)
