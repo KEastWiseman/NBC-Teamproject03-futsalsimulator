@@ -87,8 +87,10 @@ async function getAllSquardsWithExactThreeUsersExceptHome(userIdToExclude) {
       userId: true,
     },
     having: {
-      _count: {
-        userId: 3,
+      userId: {
+        _count: {
+          equals: 3
+        }
       },
     },
     where: {
@@ -143,9 +145,10 @@ async function getPlayerStatsFromSquards(squards) {
   return players;
 }
 
-router.post("/games/play", authMiddleware, async (req, res, next) => {
+router.post("/games/play", /*authMiddleware,*/ async (req, res, next) => {
   try {
-    const userId = req.user.id;
+    //const userId = req.user.id;
+    const userId = 5;
     // 1. Squard 테이블에서 userId에 맞는 정보 찾기
     const homeSquards = await prisma.squard.findMany({
       where: {
@@ -193,7 +196,7 @@ router.post("/games/play", authMiddleware, async (req, res, next) => {
 
     // 선택된 유저의 모든 PlayerPool 정보 가져오기
     const awayPlayers = await getPlayerStatsFromSquards(awaySquards);
-    
+
     if (awayPlayers.length === 0) {
       return res
         .status(404)
