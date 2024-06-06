@@ -29,6 +29,16 @@ router.post('/users/squard', ua ,async (req, res) => {
       return res.status(400).json({ error: '유효하지 않은 playerPoolId입니다.' });
     }
 
+    // //스쿼드 생성 시 부상여부 확인, 데이터 칼럼 확인하고 수정필요
+    // if (existingPlayerPool.injureddata === 'yes' ) {
+    //   return res.status(400).json({ error : "부상중인 선수는 스쿼드에 포함시킬 수 없습니다."})
+    // }
+
+    // //스태니마 상태 확인, 데이터 컬럼 확인하고 수정필요
+    // if (existingPlayerPool.staminadata < 50) {
+    //   return res.status(400),json({ error : "선수의 스태미나가 부족하여 스쿼드에 포함시킬 수 없습니다."})
+    // }
+
     // 해당 playerPool이 이미 다른 Squard와 연결되어 있는지 확인합니다.
     const existingSquard = await prisma.squard.findUnique({
       where: {
@@ -92,6 +102,28 @@ router.put('/users/squard/:squardId', async (req, res) => {
       return res.status(400).json({ error: '이 playerPool은 이미 다른 Squard와 연결되어 있습니다.' });
     }
 
+    // //스쿼드 수정 시 부상여부 확인, 데이터 칼럼 확인하고 수정필요
+    // if (existingPlayerPool.injureddata === 'yes' ) {
+    //   return res.status(400).json({ error : "부상중인 선수는 스쿼드에 포함시킬 수 없습니다."})
+    // }
+
+    // //스태니마 상태 확인, 데이터 컬럼 확인하고 수정필요
+    // if (existingPlayerPool.staminadata < 50) {
+    //   return res.status(400),json({ error : "선수의 스태미나가 부족하여 스쿼드에 포함시킬 수 없습니다."})
+    // }
+
+
+    // 해당 스쿼드에 playerpool이 3명 이상일 경우 에러 출력
+
+    const squardPlayerCount = await prisma.squard.findUnique({
+      where : { id: parseInt(squard)},
+      include : {playerPool : true}
+    });
+
+    if (squardPlayerCount.playerPool.lenght >= 3) {
+      return res.status(400).json({ error: "스쿼드는 2명의 선수까지만 구성이 가능합니다"});
+    }
+    
     // Squard를 업데이트합니다.
     const updatedSquard = await prisma.squard.update({
       where: { id: parseInt(squardId) },
@@ -100,6 +132,44 @@ router.put('/users/squard/:squardId', async (req, res) => {
           connect: { id: playerPoolId }
         }
       },
+    });
+
+    res.json(updatedSquard);
+  } catch (error) {
+    console.error('스쿼드 수정 중 오류가 발생했습니다:', error);
+    res.status(500).json({ error: '스쿼드 수정 중 오류가 발생했습니다.' });
+  }
+});
+
+// 스쿼드에서 선수(playerpool id) 제거
+router.put('/users/squard/:squardId/remove', async (req, res) => {
+  const { squardId } = req.params;
+  const { playerPoolId } = req.body;
+
+  if (!playerPoolId) {
+    return res.status(400).json({ error: 'playerPoolId가 필요합니다.' });
+  }
+
+  try {
+    // 특정 스쿼드에 제거하려는 playerPoolId가 있는지 확인
+    const squad = await prisma.squard.findUnique({
+      where: { id: parseInt(squardId) },
+      include: { playerPool: true }
+    });
+
+    const playerExists = squad.playerPool.some(player => player.id === playerPoolId);
+    if (!playerExists) {
+      return res.status(400).json({ error: '해당 선수는 squard 내에 존재하지 않습니다' });
+    }
+
+    // 스쿼드에서 playerPoolId 제거
+    const updatedSquard = await prisma.squard.update({
+      where: { id: parseInt(squardId) },
+      data: {
+        playerPool: {
+          disconnect: { id: playerPoolId }
+        }
+      }
     });
 
     res.json(updatedSquard);
