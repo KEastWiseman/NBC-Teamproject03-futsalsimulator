@@ -13,11 +13,11 @@ app.get('/users/toprankings', async (req, res) => {
         const toprankings = userRank.map((user, index) => ({
             '순위': user.rank,
             '유저 아이디': user.userId,
-            'mmr': user.mmr
+            '점수': user.mmr
         }));
-        // userTopRankings.sort((a, b) => b.mmr - a.mmr);       # mmr 값으로 내림차순 정렬
-        // const top50UserTopRankings = userTopRankings.slice(0, 50);       # 상위 50개의 항목만 추출
-        // const toprankings = rankings.map(user => `유저 ${user.userId}의 순위는 ${user.rank}이며, mmr 값은 ${user.mmr}입니다.`);      
+        // userTopRankings.sort((a, b) => b.mmr - a.mmr);   # mmr 값으로 내림차순 정렬
+        // const top50UserTopRankings = userTopRankings.slice(0, 50);   # 상위 50개의 항목만 추출
+        // const toprankings = rankings.map(user => `유저 ${user.userId}의 순위는 ${user.rank}이며, mmr 값은 ${user.mmr}입니다.`);  # 문장형으로 저장
         if (toprankings.length === 0) {
             res.status(404).json({ error: '랭킹 데이터를 조회할 수 없습니다.' });
         }        
