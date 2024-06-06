@@ -17,7 +17,7 @@ const TOTAL_COST = 1000;
 // 1.4. 캐시에서 해당 금액 뺴고 저장하기
 router.post('/DrawCard', authMiddleware, async(req,res,next) => {
     const {accountName} = req.user
-    const {purchasePlayer} = req.body;                                                                      //1.1
+    const {nationality} = req.body;                                                                      //1.1
     
     try {
         const user = await prisma.user.findFirst({where: {accountName}});                                            //1.2.1
@@ -25,9 +25,7 @@ router.post('/DrawCard', authMiddleware, async(req,res,next) => {
             return res.status(400).json({message: "계정의 정보가 유효하지 않습니다. 다시 로그인해주세요"});
         };
 
-        const findPlayer = await prisma.player.findMany({
-            where: {nationality: purchasePlayer},
-        });
+        const findPlayer = await prisma.player.findMany({ where: {nationality} });
         if (!findPlayer) {
             return res.status(400).json({message: "구입하려는 카드팩이 존재하지 않습니다. 카드팩의 이름은 국가명이므로 정확히 작성해주세요"});
         };
@@ -36,13 +34,14 @@ router.post('/DrawCard', authMiddleware, async(req,res,next) => {
             return res.status(400).json({message: " 보유하고 있는 금액이 부족합니다."});
         };
 
-        const targerName = getRandom(findPlayer).name;
-        const getPlayer = await prisma.player.findFirst({where: {name: targerName }});
+        const targerId = getRandom(findPlayer).id;
+        const getPlayer = await prisma.player.findFirst({where: {id: targerId }});
 
         const savePlayerId = await prisma.playerPool.create({
             data: {
                 userId : user.id,
                 playerId: getPlayer.id,
+                playerName: getPlayer.name
             }
         });
 
