@@ -33,45 +33,45 @@ router.patch ("/upgrade", authMiddleware, async(req, res, next) => {
     };
 
     const findTargetPlayer = await prisma.playerPool.findFirst({where: {userId: user.id, playerName: upgradePlayerName}});
-    if (!findTargetPlayer) {
+    if (!upgradePlayerName || !findTargetPlayer) {
         return res.status(400).json({message: "강화하려는 선수가 존재하지 않습니다."});
     };
     
     const chooseTargetPlayer = await checkSameName(findTargetPlayer.playerId);                                                                              //1.3.2
-    if (chooseTargetPlayer.length>=2) {
+    if (!upgradePlayerId && chooseTargetPlayer.length>=2) {
         return res.status(400).json({message: `강화하려는 선수의 id를 다음 내용을 참고하여 추가로 해주세요`, data: chooseTargetPlayer});
     };
 
-    const findSacrificialPlayer = await prisma.playerPool.findMany({where: {userId: user.id, playerName: sacrificePlayerName}});                                                                             //1.3.3
-    if (!findSacrificialPlayer) {
+    const findSacrificialPlayer = await prisma.playerPool.findFirst({where: {userId: user.id, playerName: sacrificePlayerName}});                                                                             //1.3.3
+    if (!sacrificePlayerName || !findSacrificialPlayer) {
         return res.status(400).json({message: "제물로 이용될 선수가 존재하지 않습니다."});
     };
 
     const chooseSacrificialPlayer = await checkSameName(findSacrificialPlayer.playerId);                                                                    //1.3.4
-    if (chooseSacrificialPlayer.length>=2) {
+    if (!sacrificePlayerId && chooseSacrificialPlayer.length>=2) {
         return res.status(400).json({message: `제물로 이용될 선수의 id를 다음 내용을 참고하여 추가로 해주세요`, data: chooseSacrificialPlayer});
     };
     
-    const targetPlayer = await prisma.playerPool.findFirst({where: {playerId:chooseTargetPlayer.id}});
-    const sacrificialPlayer = await prisma.playerPool.findFirst({where: {playerId: chooseSacrificialPlayer.id}});
+    const targetPlayer = await prisma.playerPool.findFirst({where: {playerId:chooseTargetPlayer[0].id}});
+    const sacrificialPlayer = await prisma.playerPool.findFirst({where: {playerId: chooseSacrificialPlayer[0].id}});
 
     await checkLevel(targetPlayer, sacrificialPlayer);                                                                                                      //1.4.1
-    await checkNumberofPerson(targetPlayer, sacrificialPlayer);                                                                                             //1.4.2
+    // await checkNumberofPerson(targetPlayer, sacrificialPlayer);                                                                                             //1.4.2
 
     let randomNumber = Math.random();
     if (randomNumber <= (1/targetPlayer.playerLevel)) {
         targetPlayer.playerLevel += 1;
         await prisma.playerPool.update({
-            where: {playerId: targetPlayer.playerId},
+            where: {id : findTargetPlayer.id},
             data: {playerLevel:targetPlayer.playerLevel}
         })
 
         sacrificialPlayer.count -=1;
         if (sacrificialPlayer.count <=0) {
-            await prisma.playerPool.delete({where: {playerId: sacrificialPlayer.playerId}})
+            await prisma.playerPool.delete({where: {id : findSacrificialPlayer.id}})
         } else {
             await prisma.playerPool.update({
-                where: {playerId: sacrificialPlayer.playerId},
+                where: {id : findSacrificialPlayer.id},
                 data: {count: sacrificialPlayer.count}
             })
         }
@@ -94,7 +94,7 @@ router.patch ("/upgrade", authMiddleware, async(req, res, next) => {
 
 // 3. 선수 모두 찾기 함수 (동명다인)
 const checkSameName = (player) => {
-    const playerInfo = prisma.player.findMany({where: {id: player.id}});
+    const playerInfo = prisma.player.findMany({where: {id: player}});
     return playerInfo;
 };
 // 4. 유효성 검사 함수 1 - 제물 선수의 level이 알맞지 않은 경우
@@ -112,16 +112,16 @@ const checkLevel = (targetPlayer, sacrificialPlayer) => {
     }
 };
 // 5. 유효성 검사 함수 2 - 등록한 제물 선수들의 수가 부족한 경우
-const checkNumberofPerson = (targetPlayer, sacrificialPlayer) => {
-    if ( (targetPlayer.playerLevel-1) > sacrificialPlayer.length) {
-        return res.status(400).json({
-            message: `제물로 사용되는 선수들의 수가 부족합니다.
-            level 1 단계 >>> 2단계 : 제물선수의 수 : 1lebel 1 명
-            level 2 단계 >>> 3단계 : 제물선수의 수 : 2lebel 2 명
-            level 3 단계 >>> 4단계 : 제물선수의 수 : 3lebel 3 명
-            `
-        });
-    }
-};
+// const checkNumberofPerson = (targetPlayer, sacrificialPlayer) => {
+//     if ( (targetPlayer.playerLevel-1) > sacrificialPlayer.length) {
+//         return res.status(400).json({
+//             message: `제물로 사용되는 선수들의 수가 부족합니다.
+//             level 1 단계 >>> 2단계 : 제물선수의 수 : 1lebel 1 명
+//             level 2 단계 >>> 3단계 : 제물선수의 수 : 2lebel 2 명
+//             level 3 단계 >>> 4단계 : 제물선수의 수 : 3lebel 3 명
+//             `
+//         });
+//     }
+// };
 
 export default router;
