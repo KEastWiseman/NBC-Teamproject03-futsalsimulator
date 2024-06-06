@@ -5,6 +5,7 @@ import CashRouter from "./routers/cash.router.js";
 import GameRouter from "./routers/game.router.js";
 import PlayerRouter from "./routers/playerGamble.js";
 import SquardRouter from './routers/squard.router.js';
+import UpgradeRouter from './routers/upgradePlayer.js';
 import startRankBoardUpdater from './src/updateRanking.js';
 
 const app = express();
@@ -18,6 +19,7 @@ app.use("/api", [
   CashRouter, 
   GameRouter,
   SquardRouter,
+  UpgradeRouter,
   PlayerRouter]);
 
 

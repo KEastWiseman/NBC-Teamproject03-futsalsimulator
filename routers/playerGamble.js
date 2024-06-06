@@ -42,7 +42,9 @@ router.post('/DrawCard', authMiddleware, async(req,res,next) => {
             data: {
                 userId : user.id,
                 playerId: getPlayer.id,
-                playerName: getPlayer.name
+                playerName: getPlayer.name,
+                playerLevel : 1,
+                count : 1,
             }
         });
 

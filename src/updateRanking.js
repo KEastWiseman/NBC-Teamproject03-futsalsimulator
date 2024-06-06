@@ -28,7 +28,7 @@ const updateRankBoard = async ()=>{
 }
 
 const startRankBoardUpdater = ()=>{
-    setInterval(updateRankBoard, 30000);
+    setInterval(updateRankBoard, 1800*1000);
 }
 
 export default startRankBoardUpdater;

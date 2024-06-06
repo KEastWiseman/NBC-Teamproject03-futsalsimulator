@@ -1,5 +1,5 @@
 import express from "express";
-import { prisma } from "../utils/prisma/index.js";
+import { prisma } from '../util/prisma/index.js';
 import authMiddleware from "../src/middleware/auths/user.authenticator.js";
 
 const router = express.Router();
@@ -18,23 +18,21 @@ const router = express.Router();
 
 router.patch ("/upgrade", authMiddleware, async(req, res, next) => {
     const {upgradePlayerName, upgradePlayerId, sacrificePlayerName, sacrificePlayerId} = req.body;                                                          //1.1                                                                              //1.1
-    const {user} = req.user;
+    const user = req.user;
 
-    if(!upgradePlayerName && !upgradePlayerId && !sacrificePlayerName && !sacrificePlayerId) {                                                              //1.2
-        const myPlayerList = await prisma.playerPool.finsMany({userId: user.id})
+    if(!(upgradePlayerName && upgradePlayerId && sacrificePlayerName && sacrificePlayerId)) {                                                              //1.2
+        const myPlayerList = await prisma.playerPool.findMany({where : {userId: user.id}})
         return res.status(400).json({
             message: `다음을 통해 강화하려는 선수와 재료로 쓰일 선수를 선택해주세요 
-            ${<br></br>}
-            data: ${myPlayerList}
-            ${<br></br>}
-            level 1 단계 >>> 2단계 : 강화 확률= 100%    제물선수의 조건 : 1lebel 선수 1명
-            level 2 단계 >>> 3단계 : 강화 확률= 50%     제물선수의 조건 : 2lebel 선수 2명
-            level 3 단계 >>> 4단계 : 강화 확률= 25%     제물선수의 조건 : 3lebel 선수 3명
+            data: ${JSON.stringify(myPlayerList)}
+            level 1 단계 >>> 2단계 : 강화 확률= 100%    제물선수의 조건 : 1level 선수 1명
+            level 2 단계 >>> 3단계 : 강화 확률= 50%     제물선수의 조건 : 2level 선수 2명
+            level 3 단계 >>> 4단계 : 강화 확률= 25%     제물선수의 조건 : 3level 선수 3명
             `
         });
     };
 
-    const findTargetPlayer = await isExistPlayer(upgradePlayerName);                                                                                        //1.3.1
+    const findTargetPlayer = await prisma.playerPool.findFirst({where: {userId: user.id, playerName: upgradePlayerName}});
     if (!findTargetPlayer) {
         return res.status(400).json({message: "강화하려는 선수가 존재하지 않습니다."});
     };
@@ -44,7 +42,7 @@ router.patch ("/upgrade", authMiddleware, async(req, res, next) => {
         return res.status(400).json({message: `강화하려는 선수의 id를 다음 내용을 참고하여 추가로 해주세요`, data: chooseTargetPlayer});
     };
 
-    const findSacrificialPlayer = await isExistPlayer(sacrificePlayerName);                                                                                 //1.3.3
+    const findSacrificialPlayer = await prisma.playerPool.findMany({where: {userId: user.id, playerName: sacrificePlayerName}});                                                                             //1.3.3
     if (!findSacrificialPlayer) {
         return res.status(400).json({message: "제물로 이용될 선수가 존재하지 않습니다."});
     };
@@ -93,14 +91,10 @@ router.patch ("/upgrade", authMiddleware, async(req, res, next) => {
 });
 
 
-// 2. 선수 찾기 함수 (존재 유무)
-const isExistPlayer = (player) => {
-    const playerInfo = prisma.playerPool.findMany({where: {userId: user.id, playerName: player.playerName}});
-    return playerInfo;
-};
+
 // 3. 선수 모두 찾기 함수 (동명다인)
 const checkSameName = (player) => {
-    const playerInfo = prisma.player.findMany({where: {id: player.playerId}});
+    const playerInfo = prisma.player.findMany({where: {id: player.id}});
     return playerInfo;
 };
 // 4. 유효성 검사 함수 1 - 제물 선수의 level이 알맞지 않은 경우
@@ -109,7 +103,6 @@ const checkLevel = (targetPlayer, sacrificialPlayer) => {
         if ( targetPlayer.playerLevel !== (sacrificialPlayer[i].playerLevel+1) ) {
             return res.status(400).json({
                 message: `${sacrificialPlayer[i].playerName}선수의 level이 알맞지 않습니다.
-                ${<br></br>}
                 level 1 단계 >>> 2단계 : 제물선수의 level : 1lebel
                 level 2 단계 >>> 3단계 : 제물선수의 level : 2lebel
                 level 3 단계 >>> 4단계 : 제물선수의 level : 3lebel
@@ -123,7 +116,6 @@ const checkNumberofPerson = (targetPlayer, sacrificialPlayer) => {
     if ( (targetPlayer.playerLevel-1) > sacrificialPlayer.length) {
         return res.status(400).json({
             message: `제물로 사용되는 선수들의 수가 부족합니다.
-            ${<br></br>}
             level 1 단계 >>> 2단계 : 제물선수의 수 : 1lebel 1 명
             level 2 단계 >>> 3단계 : 제물선수의 수 : 2lebel 2 명
             level 3 단계 >>> 4단계 : 제물선수의 수 : 3lebel 3 명
