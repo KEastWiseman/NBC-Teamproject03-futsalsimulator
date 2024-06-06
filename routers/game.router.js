@@ -186,6 +186,41 @@ async function findUserWithinMMRRanges(userId) {
   return foundUser;
 }
 
+async function resetPlayerPoolData(userId, homeSquards) {
+  // PlayerPool 테이블에서 userId에 해당하는 모든 playerPoolId 가져오기
+  const userPlayerPoolIds = await prisma.playerPool.findMany({
+    where: {
+      userId: +userId,
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  // Squard의 playerPoolId 가져오기
+  const squardPlayerPoolIds = homeSquards.map((squard) => squard.playerPoolId);
+
+  // Squard의 playerPoolId를 제외한 다른 playerPoolId 초기화
+  const playerPoolIdsToReset = userPlayerPoolIds.filter(
+    (playerPool) => !squardPlayerPoolIds.includes(playerPool.id)
+  );
+
+  if (playerPoolIdsToReset.length > 0) {
+    // PlayerPoolId에 해당하는 값 초기화
+    await prisma.playerPool.updateMany({
+      where: {
+        id: {
+          in: playerPoolIdsToReset.map((pool) => pool.id),
+        },
+      },
+      data: {
+        stamina: 100,
+        sidelined: false,
+      },
+    });
+  }
+}
+
 router.post("/games/play", authMiddleware, async (req, res, next) => {
   try {
     const userId = req.user.id;
@@ -245,6 +280,9 @@ router.post("/games/play", authMiddleware, async (req, res, next) => {
 
     // homePlayer stamina 감소
     const result = await MatchGame(homePlayers, awayPlayers);
+
+    //내가 가진 다른 선수들의 stamina 초기화
+    resetPlayerPoolData(userId, homeSquards);
 
     // Match 테이블에 결과 입력
     const matchResult = await prisma.matching.create({
