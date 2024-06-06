@@ -3,7 +3,6 @@ import {prisma} from '../util/prisma/index.js'
 const updateRankBoard = async ()=>{
     try{
         const users = await prisma.user.findMany({
-            
             orderBy:[
                 {
                     mmr : 'desc'
@@ -21,8 +20,6 @@ const updateRankBoard = async ()=>{
         await prisma.userTopRankings.createMany({
             data:newRanker
         });
-        
-        
         console.log('리더보드 업데이트 완료');
     }
     catch (err){
