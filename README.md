@@ -298,3 +298,49 @@
   
 </details>
 <br>
+
+
+### 스쿼드 수정
+ 
+> ![](https://img.shields.io/static/v1?label=&message=PUT&color=orange) <br>
+> /**api/users/squard/:squardId**
+
+<details markdown="1">
+<summary>detail</summary>
+ 
+#### Parameters
+ 
+##### Body
+
+| name | type | description | required |
+| :---: | :---: | :---: | :---: |
+| playerPoolId | int | 해당하는 playerPoolId | **Required** |
+
+#### Response
+ 
+  <details markdown="1">
+  <summary>200 OK : 성공적으로 수정된 경우</summary>
+  
+  ```
+  {
+    "id": 26,
+    "userId": 55,
+    "playerPoolId": "50",
+  }
+  ```
+
+  </details>
+  
+  <details markdown="1">
+  <summary>400 Bad Request : 다른 유저가 사용중인 playerPoolId일 경우</summary>
+   
+  ```
+  {
+    "error": "이 playerPool은 이미 다른 Squard와 연결되어 있습니다.",
+  }
+  ```
+
+  </details>
+  
+</details>
+<br>
