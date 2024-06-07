@@ -35,6 +35,7 @@
    		실패 시
    		>	sacrificePlayer 가 사라진다.
 </details>
+<br>
 
 # API 명세
  
