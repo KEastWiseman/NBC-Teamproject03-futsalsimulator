@@ -19,8 +19,8 @@
 		1.4 sacrificePlayerId		: upgradePlayerId 와 같음<br>
 	<br>
 		2. 필요 조건<br>
-		2.1 upgradePlayer Level = sacrificePlayer Level +1<br>
-			:강화하려는 Player Level이 제물 Player Level 보다 무조건 1만 높아야 한다.<br>
+		2.1 upgradePlayer Level = sacrificePlayer Level <br>
+			:강화하려는 Player Level이 제물 Player Level 과 무조건 같아야 한다.<br>
 		2.2 sacrificePlayer count -= 1<br>
 			:강화할 때마다 제물 Player가 한개씩 소모된다.<br>
 	<br>
