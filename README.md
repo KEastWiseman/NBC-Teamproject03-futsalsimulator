@@ -241,3 +241,60 @@
   
 </details>
 <br>
+
+
+### 스쿼드 조회
+> ![](https://img.shields.io/static/v1?label=&message=GET&color=blue) <br>
+> /**api/users/squard/:userId**
+
+<details markdown="1">
+<summary>detail</summary>
+ 
+#### Parameters
+ 
+##### Body
+
+| name | type | description | required |
+| :---: | :---: | :---: | :---: |
+
+#### Response
+ 
+  <details markdown="1">
+  <summary>200 ok : 성공적으로 스쿼드 조회 </summary>
+  
+  ```
+  [
+	{
+		"id": 26,
+		"userId": 55,
+		"playerPoolId": 46,
+		"playerPool": {
+			"id": 46,
+			"userId": 55,
+			"playerId": 236,
+			"createdAt": "2024-06-07T02:51:32.756Z",
+			"playerLevel": 1,
+			"playerName": "D. Rose",
+			"count": 1,
+			"sidelined": false,
+			"stamina": 100
+		}
+	},...
+  ]
+
+  ```
+
+  </details>
+  <details markdown="1">
+  <summary>500 Internal Server Error : 올바르지 않은 id를 입력한 경우</summary>
+   
+  ```
+  {
+    "message": "스쿼드 생성 중 오류가 발생했습니다.",
+  }
+  ```
+
+  </details>
+  
+</details>
+<br>
