@@ -43,11 +43,13 @@
   </details>
   <details markdown="1">
   <summary>401 Ok : 아이디, 비밀번호가 틀릴 때</summary>
+   
   ```
   {
     "message": "인증 실패",
   }
   ```
+
   </details>
   
 </details>
