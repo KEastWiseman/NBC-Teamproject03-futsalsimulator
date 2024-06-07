@@ -327,6 +327,7 @@
     "userId": 55,
     "playerPoolId": "50",
   }
+
   ```
 
   </details>
@@ -338,6 +339,104 @@
   {
     "error": "이 playerPool은 이미 다른 Squard와 연결되어 있습니다.",
   }
+
+  ```
+
+  </details>
+  
+</details>
+<br>
+
+
+### 스쿼드 삭제
+ 
+> ![](https://img.shields.io/static/v1?label=&message=DELETE&color=red) <br>
+> /**api/users/squard/:squardId**
+
+<details markdown="1">
+<summary>detail</summary>
+ 
+#### Parameters
+ 
+##### Body
+
+| name | type | description | required |
+| :---: | :---: | :---: | :---: |
+| playerPoolId | int | 해당하는 playerPoolId | **Required** |
+
+#### Response
+ 
+  <details markdown="1">
+  <summary>204 No Content : 성공적으로 삭제된 경우</summary>
+  
+  ```
+  {
+  }
+
+  ```
+
+  </details>
+  
+  <details markdown="1">
+  <summary>500 Internal Server Error : playerPoolId가 스쿼드에 없는 경우</summary>
+   
+  ```
+  {
+    "error": "스쿼드 삭제 중 오류가 발생했습니다.",
+  }
+
+  ```
+
+  </details>
+  
+</details>
+<br>
+
+
+### 선수강화
+ 
+> ![](https://img.shields.io/static/v1?label=&message=PATCH&color=yellow) <br>
+> /**api/upgrade**
+
+<details markdown="1">
+<summary>detail</summary>
+ 
+#### Parameters
+ 
+##### Body
+
+| name | type | description | required |
+| :---: | :---: | :---: | :---: |
+| upgradePlayerName | string | 강화할 선수 이름 | **Required** |
+| upgradePlayerId | string | 강화할 선수의 id | **Required** |
+| sacrificePlayerName | string | 강화 재료로 사용할 선수의 이름 | **Required** |
+| sacrificePlayerId | string | 강화 재료로 사용할 선수의 id | **Required** |
+
+#### Response
+ 
+  <details markdown="1">
+  <summary>200 Ok : 성공적으로 강화가 된 경우</summary>
+  
+  ```
+  {
+	"message": "F. Lampard선수의 강화가 성공했습니다."
+  }
+
+  ```
+  </details>
+  <details markdown="1">
+  <summary>400 Bad Request : 올바른 입력 값이 아닌 경우</summary>
+   
+  ```
+  {
+	"message": "다음을 통해 강화하려는 선수와 재료로 쓰일 선수를 선택해주세요 \n            data: [{\"id\":45,\"userId\":55,\"playerId\":20,\"createdAt\":\"2024-06-07T02:41:12.316Z\",\"playerLevel\":1,\"playerName\":\"R. 	 
+        Mason\",\"count\":1,\"sidelined\":false,\"stamina\":100},{\"id\":46,\"userId\":55,\"playerId\":236,\"createdAt\":\"2024-06-07T02:51:32.756Z\",\"playerLevel\":1,\"playerName\":\"D. Rose\",\"count\":1,\"sidelined\":false,\"stamina\":100}, 
+        {\"id\":47,\"userId\":55,\"playerId\":481,\"createdAt\":\"2024-06-07T02:51:33.806Z\",\"playerLevel\":1,\"playerName\":\"J. Wilshere\",\"count\":1,\"sidelined\":false,\"stamina\":100},{\"id\":48,\"userId\":55,\"playerId\":738,\"createdAt\":\"2024-06- 
+        07T02:51:35.364Z\",\"playerLevel\":1,\"playerName\":\"O. Hargreaves\",\"count\":1,\"sidelined\":false,\"stamina\":100},{\"id\":49,\"userId\":55,\"playerId\":13,\"createdAt\":\"2024-06-07T02:51:35.914Z\",\"playerLevel\":1,\"playerName\":\"F. 
+        Lampard\",\"count\":1,\"sidelined\":false,\"stamina\":100},{\"id\":50,\"userId\":55,\"playerId\":111,\"createdAt\":\"2024-06-07T02:51:36.468Z\",\"playerLevel\":1,\"playerName\":\"A. Young\",\"count\":1,\"sidelined\":false,\"stamina\":100}]\n            level 1 
+        단계 >>> 2단계 : 강화 확률= 100%    제물선수의 조건 : 1level 선수 1명\n            level 2 단계 >>> 3단계 : 강화 확률= 50%     제물선수의 조건 : 2level 선수 2명\n            level 3 단계 >>> 4단계 : 강화 확률= 25%     제물선수의 조건 : 3level 선수 3명\n            "
+  }
+
   ```
 
   </details>
