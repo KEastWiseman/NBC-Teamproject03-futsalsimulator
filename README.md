@@ -14,6 +14,12 @@
 	shootCount만큼 공격 가능 => home의 power와 away의 deffence를 비교<br>
 	승리시 mmr 증가, 패배시 mmr 감소<br>
 	경기시 10%확률로 부상 가능성 있음<br>
+	<br>
+
+        경기 하지 않은 playerPool의 선수들은 stamina와 sideline을 초기화 함<br>
+
+ 	<br>상대 선수를 찾을 때, mmr += 50인 범위에서 탐색. <br>
+  	<br>없을 경우 범위를 50씩 늘림
 </details>
 <br>
 
