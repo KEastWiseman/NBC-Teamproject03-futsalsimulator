@@ -40,6 +40,8 @@
     "token": "token 정보"
   }
   ```
+  </details>
+  <details markdown="1">
   <summary>401 Ok : 아이디, 비밀번호가 틀릴 때</summary>
   ```
   {
@@ -47,5 +49,6 @@
   }
   ```
   </details>
+  
 </details>
 <br>
