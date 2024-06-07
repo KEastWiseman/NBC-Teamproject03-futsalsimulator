@@ -145,7 +145,7 @@
 <br>
 
 
-### 카드뽑기
+### 선수뽑기
  
 > ![](https://img.shields.io/static/v1?label=&message=POST&color=brightgreen) <br>
 > /**api/DrawCard**
@@ -437,6 +437,69 @@
         단계 >>> 2단계 : 강화 확률= 100%    제물선수의 조건 : 1level 선수 1명\n            level 2 단계 >>> 3단계 : 강화 확률= 50%     제물선수의 조건 : 2level 선수 2명\n            level 3 단계 >>> 4단계 : 강화 확률= 25%     제물선수의 조건 : 3level 선수 3명\n            "
   }
 
+  ```
+
+  </details>
+  
+</details>
+<br>
+
+
+### 경기시작
+ 
+> ![](https://img.shields.io/static/v1?label=&message=POST&color=brightgreen) <br>
+> /**api/games/play**
+
+<details markdown="1">
+<summary>detail</summary>
+ 
+#### Parameters
+ 
+##### Body
+
+| name | type | description | required |
+| :---: | :---: | :---: | :---: |
+
+#### Response
+ 
+  <details markdown="1">
+  <summary>201 Created : 성공적 경기가 된 경우</summary>
+  
+  ```
+  {
+    "message": "5 : 3로 승리!"
+  }
+  ```
+  </details>
+  <details markdown="1">
+  <summary>404 Not Found : 사용자의 스쿼드에 선수가 3명 미만일 경우</summary>
+   
+  ```
+  {
+    "message": "사용자의 스쿼드가 올바르지 않습니다"
+  }
+  ```
+
+  </details>
+
+  <details markdown="1">
+  <summary>400 Bad Request : 스쿼드에 stamina가 0이거나 sideline이 true인 선수가 있는 경우</summary>
+   
+  ```
+  {
+    "message": "스쿼드에 경기를 뛸 수 없는 선수가 있습니다",
+  }
+  ```
+
+  </details>
+
+  <details markdown="1">
+  <summary>404 Not Found : 매칭 상대를 찾을 수 없는 경우</summary>
+   
+  ```
+  {
+    "message": "매칭 상대를 찾을 수 없습니다.",
+  }
   ```
 
   </details>
