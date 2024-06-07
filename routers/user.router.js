@@ -6,7 +6,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 const router = express.Router();
-const SECRET_KEY = 'supersecretkey';
 const accountNameRegex = /^[a-z0-9]+$/;
 const passwordRegex = /^[a-zA-Z\d\W]{6,}$/
 const jwtSecret = process.env.USER_TOKEN_KEY;
@@ -18,10 +17,10 @@ router.post('/sign-up', async (req, res) => {
     // accountName와 password가 모두 전달되었는지 확인
     if (!accountName || !password) {
         return res.status(400).json({ message: "accountName 또는 password를 입력하세요" });
-    }  
-    // ID 조건 (영소문자 + 숫자로만 구성하기)   
-    if (!accountNameRegex.test(accountName)) {
-        return res.status(400).json({ message: "영소문자와 숫자로만 입력하세요" });
+        }  
+        // ID 조건 (영소문자 + 숫자로만 구성하기)   
+        if (!accountNameRegex.test(accountName)) {
+            return res.status(400).json({ message: "영소문자와 숫자로만 입력하세요" });
     }
     // 비밀번호 조건 (6자리이상) 
     if (!passwordRegex.test(password)) {
@@ -63,26 +62,31 @@ router.post('/sign-in', async (req, res) => {
         return res.status(400).json({ message: "accountName 또는 password를 입력하세요" });
     }
 
-    try {
-        // 사용자 조회
-        const user = await prisma.user.findUnique({
-            where: {
-                accountName,
-            },
-        });
+    // ID 조건 (영소문자 + 숫자로만 구성하기)   
+    if (!accountNameRegex.test(accountName)) { // 아이디 영어 소문자 구별
+        return res.status(400).json({ message: "accountName을 확인해 주세요" });
+    }
 
-        // 사용자가 존재하고 비밀번호가 일치하는 경우
-        if (user && user.password === password) {
-            const token = jwt.sign({ accountName: user.accountName }, jwtSecret);
-            res.header('Authorization', `Bearer ${token}`).status(200).json({ 
-                message: `${accountName}님 환영합니다`, 
-                cash: user.cash, 
-                createdAt: new Date(), 
-                token 
-            });
-        } else {
-            res.status(401).json({ message: '인증 실패' });
-        }
+    try {
+    // 사용자 조회
+    const user = await prisma.user.findUnique({
+        where: {
+            accountName,
+        },
+    });
+
+    // 사용자가 존재하고 비밀번호가 일치하는 경우
+    if (user && user.password === password) {
+        const token = jwt.sign({ accountName: user.accountName }, jwtSecret);
+        res.header('Authorization', `Bearer ${token}`).status(200).json({ 
+            message: `${accountName}님 환영합니다`, 
+            cash: user.cash, 
+            createdAt: new Date(), 
+            token 
+        });
+    } else {
+        res.status(401).json({ message: 'accountName 또는 password를 확인해 주세요' });
+    }
     } catch (error) {
         console.error('로그인 중 오류 발생:', error);
         res.status(500).json({ message: '서버 오류' });

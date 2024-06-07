@@ -1,33 +1,23 @@
-import express from "express";
-import { prisma } from "../utils/prisma/index.js";
+import express from 'express';
+import { prisma } from '../util/prisma/index.js'
 
-app.get('/users/toprankings', async (req, res) => {
-    try {
-        // Prisma를 사용하여 UserTopRankings 모델에서 데이터를 가져옵니다.
-        const userRank = await prisma.userTopRankings.findMany();
-        if (userRank.length === 0) {
-            res.status(404).json({ error: '유저 정보를 불러올 수 없습니다.' });
-        }
+const router = express.Router();
 
-        // 순위, 유저 아이디, mmr 값을 포함한 객체 배열 생성
-        const toprankings = userRank.map((user, index) => ({
-            '순위': user.rank,
-            '유저 아이디': user.userId,
-            '점수': user.mmr
-        }));
+router.get('/rank', async(req,res,next)=>{
+    try{
+        const rank = await prisma.userTopRankings.findMany({
+            orderBy:[
+                {
+                    rank : 'asc'
+                }
+            ]
+        });
 
-        // userTopRankings.sort((a, b) => b.mmr - a.mmr);   # mmr 값으로 내림차순 정렬
-        // const top50UserTopRankings = userTopRankings.slice(0, 50);   # 상위 50개의 항목만 추출
-        // const toprankings = rankings.map(user => `유저 ${user.userId}의 순위는 ${user.rank}이며, 점수 값은 ${user.mmr}입니다.`);  # 문장형으로 저장
-        
-        if (toprankings.length === 0) {
-            res.status(404).json({ error: '랭킹 데이터를 조회할 수 없습니다.' });
-        }        
-        res.json(toprankings);
-    } catch (error) {
-        console.error("Error fetching top rankings:", error);
-        res.status(500).json({ error: "서버 오류" });
+        return res.status(200).json({message:'랭킹이 조회되었습니다', data:rank})
+    } catch (err){
+        console.error('랭킹 조회 중 에러 발생:', err);
+        res.status(500).json({ message: '서버 오류' });
     }
-});
+})
 
 export default router;
