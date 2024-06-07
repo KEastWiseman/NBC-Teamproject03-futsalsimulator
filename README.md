@@ -2,7 +2,7 @@
 내일배움캠프 Nodejs 3차 팀프로젝트 풋살 시뮬레이터
 
 
-# 일반 API 명세
+# API 명세
  
 ![](https://img.shields.io/static/v1?label=&message=GET&color=blue)
 ![](https://img.shields.io/static/v1?label=&message=POST&color=brightgreen)
@@ -103,6 +103,37 @@
   ```
   {
     "message": "6자 이상으로 입력하세요",
+  }
+  ```
+
+  </details>
+  
+</details>
+
+### 캐쉬추가
+ 
+> ![](https://img.shields.io/static/v1?label=&message=PATCH&color=yellow) <br>
+> /**api/user/cash**
+
+<details markdown="1">
+<summary>detail</summary>
+ 
+#### Parameters
+ 
+##### Body
+
+| name | type | description | required |
+| :---: | :---: | :---: | :---: |
+| deposit | int | 추가할 금액 | **Required** |
+
+#### Response
+ 
+  <details markdown="1">
+  <summary>201 Created : 성공적으로 회원가입 된 경우</summary>
+  
+  ```
+  {
+
   }
   ```
 
