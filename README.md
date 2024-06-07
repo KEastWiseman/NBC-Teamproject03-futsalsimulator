@@ -11,31 +11,33 @@
 <details markdown="1">
 	<summary>선수 강화 상세 내용</summary>
 		1. 필요한 Data<br>
-		1.1 upgradePlayerName		: 사용자는 일반적으로 선수 이름만 알기 때문에 필요				
-							>>이름으로 data를 찾음	
-		1.2 upgradePlayerId		: 동명이인인 선수가 있을 수 있고 각각의 선수 id가 다르기 때문에 필요		
-							>>id로 정확한 data를 찾음
-		1.3 sacrificePlayerName		: upgradePlayerName 과 같음
-		1.4 sacrificePlayerId		: upgradePlayerId 와 같음
-		2. 필요 조건
-		2.1 upgradePlayer Level = sacrificePlayer Level +1	:강화하려는 Player Level이 제물 Player Level 보다 무조건 1만 높아야 한다.
-		2.2 sacrificePlayer count -= 1					:강화할 때마다 제물 Player가 한개씩 소모된다.
-		3. 강화 확률
-		1 Level ➺ 2 Level : 50%
-		2 Level ➺ 3 Level : 33.3%
-		3 Level ➺ 4 Level : 25%
-		4.메커니즘
-		1. upgradePlayerName 로 PlayerPool에 있는 data를 찾는다
-   		>	동명이인이 있는 경우 upgradePlayerId를 통해서 data를 찾는다.
-		2. sacrificePlayerName 로 PlayerPool에 있는 data를 찾는다
-   		>	동명이인이 있는 경우 sacrificePlayerId 통해서 data를 찾는다.
-		3. 필요조건 2.1이 알맞는지 확인한다.
-		4. 강화 시도
-		5. 성공 시
-   		>	upgradePlayer 의 Level 이 +1만큼 오른다.
-   		>	sacrificePlayer 가 사라진다.
-   		실패 시
-   		>	sacrificePlayer 가 사라진다.
+		1.1 upgradePlayerName		: 사용자는 일반적으로 선수 이름만 알기 때문에 필요<br>		
+							>>이름으로 data를 찾음<br>
+		1.2 upgradePlayerId		: 동명이인인 선수가 있을 수 있고 각각의 선수 id가 다르기 때문에 필요<br>
+							>>id로 정확한 data를 찾음<br>
+		1.3 sacrificePlayerName		: upgradePlayerName 과 같음<br>
+		1.4 sacrificePlayerId		: upgradePlayerId 와 같음<br>
+		2. 필요 조건<br>
+		2.1 upgradePlayer Level = sacrificePlayer Level +1<br>
+			:강화하려는 Player Level이 제물 Player Level 보다 무조건 1만 높아야 한다.<br>
+		2.2 sacrificePlayer count -= 1<br>
+			:강화할 때마다 제물 Player가 한개씩 소모된다.<br>
+		3. 강화 확률<br>
+		1 Level ➺ 2 Level : 50%<br>
+		2 Level ➺ 3 Level : 33.3%<br>
+		3 Level ➺ 4 Level : 25%<br>
+		4.메커니즘<br>
+		1. upgradePlayerName 로 PlayerPool에 있는 data를 찾는다<br>
+   		>	동명이인이 있는 경우 upgradePlayerId를 통해서 data를 찾는다.<br>
+		2. sacrificePlayerName 로 PlayerPool에 있는 data를 찾는다<br>
+   		>	동명이인이 있는 경우 sacrificePlayerId 통해서 data를 찾는다.<br>
+		3. 필요조건 2.1이 알맞는지 확인한다.<br>
+		4. 강화 시도<br>
+		5. 성공 시<br>
+   		>	upgradePlayer 의 Level 이 +1만큼 오른다.<br>
+   		>	sacrificePlayer 가 사라진다.<br>
+   		실패 시<br>
+   		>	sacrificePlayer 가 사라진다.<br>
 </details>
 <br>
 
