@@ -4,7 +4,19 @@
 
 
 # 추가 상세 기능
+<details markdown="1">
+	<summary>경기 상세 내용</summary>
+	<br>
+	스쿼드의 스탯을 shootCount, power, deffence를 만듦<br>
+	shootCount = speed + passing + dribbling<br>
+	power = heading + shooting + dribbling<br>
+	deffence = tackling + marking + strength<br>
+	shootCount만큼 공격 가능 => home의 power와 away의 deffence를 비교<br>
+	승리시 mmr 증가, 패배시 mmr 감소<br>
+	경기시 10%확률로 부상 가능성 있음<br>
 </details>
+<br>
+
 <details markdown="1">
 	<summary>선수 강화 상세 내용</summary>
 		1. 필요한 Data<br>
