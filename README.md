@@ -11,14 +11,14 @@
 <details markdown="1">
 	<summary>선수 강화 상세 내용</summary>
 		1. 필요한 Data
-		1.1 upgradePlayerName	: 사용자는 일반적으로 선수 이름만 알기 때문에 필요					>>이름으로 data를 찾음
-		1.2 upgradePlayerId		: 동명이인인 선수가 있을 수 있고 각각의 선수 id가 다르기 때문에 필요		>>id로 정확한 data를 찾음
-		1.3 sacrificePlayerName		: upgradePlayerName 과 같음
-		1.4 sacrificePlayerId		: upgradePlayerId 와 같음
-		2. 필요 조건
-		2.1 upgradePlayer Level = sacrificePlayer Level +1	:강화하려는 Player Level이 제물 Player Level 보다 무조건 1만 높아야 한다.
-		2.2 sacrificePlayer count -= 1					:강화할 때마다 제물 Player가 한개씩 소모된다.
-		3. 강화 확률
+		1.1 upgradePlayerName		: 사용자는 일반적으로 선수 이름만 알기 때문에 필요				>>이름으로 data를 찾음	<br>
+		1.2 upgradePlayerId		: 동명이인인 선수가 있을 수 있고 각각의 선수 id가 다르기 때문에 필요		>>id로 정확한 data를 찾음<br>
+		1.3 sacrificePlayerName		: upgradePlayerName 과 같음<br>
+		1.4 sacrificePlayerId		: upgradePlayerId 와 같음<br>
+		2. 필요 조건<br>
+		2.1 upgradePlayer Level = sacrificePlayer Level +1	:강화하려는 Player Level이 제물 Player Level 보다 무조건 1만 높아야 한다.<br>
+		2.2 sacrificePlayer count -= 1					:강화할 때마다 제물 Player가 한개씩 소모된다.<br>
+		3. 강화 확률<br>
 		1 Level ➺ 2 Level : 50%
 		2 Level ➺ 3 Level : 33.3%
 		3 Level ➺ 4 Level : 25%
