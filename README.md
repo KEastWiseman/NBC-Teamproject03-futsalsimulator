@@ -17,22 +17,27 @@
 							>>id로 정확한 data를 찾음<br>
 		1.3 sacrificePlayerName		: upgradePlayerName 과 같음<br>
 		1.4 sacrificePlayerId		: upgradePlayerId 와 같음<br>
+	<br>
 		2. 필요 조건<br>
 		2.1 upgradePlayer Level = sacrificePlayer Level +1<br>
 			:강화하려는 Player Level이 제물 Player Level 보다 무조건 1만 높아야 한다.<br>
 		2.2 sacrificePlayer count -= 1<br>
 			:강화할 때마다 제물 Player가 한개씩 소모된다.<br>
+	<br>
 		3. 강화 확률<br>
 		1 Level ➺ 2 Level : 50%<br>
 		2 Level ➺ 3 Level : 33.3%<br>
 		3 Level ➺ 4 Level : 25%<br>
+	<br>
 		4.메커니즘<br>
 		1. upgradePlayerName 로 PlayerPool에 있는 data를 찾는다<br>
    		>	동명이인이 있는 경우 upgradePlayerId를 통해서 data를 찾는다.<br>
 		2. sacrificePlayerName 로 PlayerPool에 있는 data를 찾는다<br>
    		>	동명이인이 있는 경우 sacrificePlayerId 통해서 data를 찾는다.<br>
 		3. 필요조건 2.1이 알맞는지 확인한다.<br>
+	<br>
 		4. 강화 시도<br>
+	<br>
 		5. 성공 시<br>
    		>	upgradePlayer 의 Level 이 +1만큼 오른다.<br>
    		>	sacrificePlayer 가 사라진다.<br>
