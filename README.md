@@ -5,9 +5,8 @@
 
 # 추가 상세 기능
 <details markdown="1">
-	<summary>경기 중 상세 사항
-		
-	</summary>
+	<summary>경기 상세 내용</summary>
+	경기 진행시, 각 팀의 스쿼드의 정보를 파악합니다.
 </details>
 
 # API 명세
