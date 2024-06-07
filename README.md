@@ -290,7 +290,7 @@
    
   ```
   {
-    "message": "스쿼드 생성 중 오류가 발생했습니다.",
+    "message": "스쿼드를 조회할 수 없습니다.",
   }
   ```
 
@@ -499,6 +499,54 @@
   ```
   {
     "message": "매칭 상대를 찾을 수 없습니다.",
+  }
+  ```
+
+  </details>
+  
+</details>
+<br>
+
+
+### 랭킹조회
+> ![](https://img.shields.io/static/v1?label=&message=GET&color=blue) <br>
+> /**api/rank**
+
+<details markdown="1">
+<summary>detail</summary>
+ 
+#### Parameters
+ 
+##### Body
+
+| name | type | description | required |
+| :---: | :---: | :---: | :---: |
+
+#### Response
+ 
+  <details markdown="1">
+  <summary>200 ok : 성공적으로 랭킹 조회 </summary>
+  
+  ```
+  {
+	"message": "랭킹이 조회되었습니다",
+	"data": [
+		{
+			"userId": 47,
+			"rank": 1,
+			"mmr": 1150
+		},...
+  }
+
+  ```
+
+  </details>
+  <details markdown="1">
+  <summary>500 Internal Server Error : 랭킹을 조회하지 못한 경우</summary>
+   
+  ```
+  {
+    "message": "서버 오류",
   }
   ```
 
