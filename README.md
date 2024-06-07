@@ -55,6 +55,7 @@
 </details>
 <br>
 
+
 ### 회원가입
  
 > ![](https://img.shields.io/static/v1?label=&message=POST&color=brightgreen) <br>
@@ -109,6 +110,7 @@
   </details>
   
 </details>
+<br>
 
 ### 캐쉬추가
  
@@ -134,6 +136,61 @@
   ```
   {
 
+  }
+  ```
+
+  </details>
+  
+</details>
+<br>
+
+
+### 카드뽑기
+ 
+> ![](https://img.shields.io/static/v1?label=&message=POST&color=brightgreen) <br>
+> /**api/DrawCard**
+
+<details markdown="1">
+<summary>detail</summary>
+ 
+#### Parameters
+ 
+##### Body
+
+| name | type | description | required |
+| :---: | :---: | :---: | :---: |
+| nationality | string | 국가 | **Required** |
+
+#### Response
+ 
+  <details markdown="1">
+  <summary>200 ok : 성공적으로 카드를 뽑음 </summary>
+  
+  ```
+  {
+	   "message": "R. Mason선수가 뽑혔습니다.",
+	   "data": {
+		   "id": 45,
+		   "userId": 55,
+		   "playerId": 20,
+		   "createdAt": "2024-06-07T02:41:12.316Z",
+		   "playerLevel": 1,
+		   "playerName": "R. Mason",
+		   "count": 1,
+		   "sidelined": false,
+		   "stamina": 100
+	   },
+	   "cash": 9000
+  }
+  ```
+
+  </details>
+  <details markdown="1">
+  <summary>500 Internal Server Error : 올바르지 않은 국가를 입력한 경우</summary>
+   
+  ```
+  {
+    "message": "패키지 구매 중 에러가 발생했습니다.",
   }
   ```
 
