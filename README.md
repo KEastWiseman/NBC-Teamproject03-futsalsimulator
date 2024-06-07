@@ -12,9 +12,9 @@
 	<summary>선수 강화 상세 내용</summary>
 		1. 필요한 Data<br>
 		1.1 upgradePlayerName		: 사용자는 일반적으로 선수 이름만 알기 때문에 필요<br>		
-							>>이름으로 data를 찾음<br>
+							      >>이름으로 data를 찾음<br>
 		1.2 upgradePlayerId		: 동명이인인 선수가 있을 수 있고 각각의 선수 id가 다르기 때문에 필요<br>
-							>>id로 정확한 data를 찾음<br>
+							      >>id로 정확한 data를 찾음<br>
 		1.3 sacrificePlayerName		: upgradePlayerName 과 같음<br>
 		1.4 sacrificePlayerId		: upgradePlayerId 와 같음<br>
 	<br>
